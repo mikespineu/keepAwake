@@ -82,6 +82,9 @@
     .shots figure { margin: 0; }
     .shots img { width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--line); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25); display: block; }
     .shots figcaption { color: var(--muted); font-size: 15px; text-align: center; margin-top: 10px; }
+    .agents-layout { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 24px; align-items: start; margin-bottom: 24px; }
+    .agents-layout .stack { display: grid; gap: 16px; }
+    .agents-layout .shots { display: block; }
 
     .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
     .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
@@ -150,7 +153,7 @@
 
     @media (max-width: 760px) {
       header.hero { padding: 48px 0 32px; }
-      .shots, .features, .gk { grid-template-columns: minmax(0, 1fr); }
+      .shots, .features, .gk, .agents-layout { grid-template-columns: minmax(0, 1fr); }
       .gk-shot { max-width: 270px; margin: 0 auto; }
       ol.steps > li { padding: 16px 16px 16px 60px; }
       ol.steps > li::before { left: 16px; top: 16px; }
@@ -232,10 +235,21 @@
 
     <section aria-labelledby="agents">
       <h2 id="agents">Use with AI agents</h2>
-      <div class="features">
+      <div class="agents-layout">
+        <div class="shots">
+          <figure>
+            <picture>
+              <source media="(prefers-color-scheme: light)" srcset="menu-agents-light.png">
+              <img src="menu-agents-dark.png" alt="keepAwake menu kept awake by Claude Code, with a Claude Code hold and Claude Code connected" width="920" height="1390" loading="lazy">
+            </picture>
+            <figcaption>Kept awake by Claude Code while it works</figcaption>
+          </figure>
+        </div>
+        <div class="stack">
         <div class="card"><h3>Connect</h3><p>Open the keepAwake menu and click <span class="path">Connect: Claude Code</span> or <span class="path">Cursor</span>, then start a new agent session. It adds keepAwake's hooks and MCP server to that app's settings, and keeps a backup copy of each file it changes.</p></div>
         <div class="card"><h3>While the agent works</h3><p>Every prompt and tool call keeps the Mac awake for the next 30 minutes. When the agent finishes, or crashes, the Mac can sleep again. You can also ask the agent to “keep my Mac awake for 3 hours”.</p></div>
         <div class="card"><h3>You're in charge</h3><p>The menu lists every agent holding the Mac awake. Click × to end one, or <span class="path">Turn Off</span> to end them all. The hooks never read your prompts.</p></div>
+        </div>
       </div>
       <details>
         <summary>Terminal, scripts and other MCP clients</summary>

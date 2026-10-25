@@ -134,6 +134,11 @@ pmset -g assertions | grep keepAwake
 
 Coding agents can keep your Mac awake while they work and let it sleep when they finish. Each agent gets its own **hold**: the menu lists who is holding the Mac awake, and the × next to a hold ends it. **Turn Off** ends every hold.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/menu-agents-dark.png">
+  <img src="docs/menu-agents-light.png" alt="keepAwake menu kept awake by Claude Code, with a Claude Code hold and Claude Code connected" width="420">
+</picture>
+
 ### Connect Claude Code or Cursor
 
 Click **Connect: Claude Code** or **Cursor** in the keepAwake menu. Or run it in Terminal:
