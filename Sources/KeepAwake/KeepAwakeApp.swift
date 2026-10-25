@@ -11,7 +11,16 @@ enum Entry {
             }
             return
         }
+        // `KeepAwake hold|release|start|stop|status …` talks to the running app and exits.
+        let args = Array(CommandLine.arguments.dropFirst())
+        if let command = args.first, AgentCLI.commands.contains(command) {
+            exit(AgentCLI.run(args, client: AgentClient(), out: { print($0) }, err: printError))
+        }
         KeepAwakeApp.main()
+    }
+
+    private static func printError(_ message: String) {
+        FileHandle.standardError.write(Data((message + "\n").utf8))
     }
 }
 
