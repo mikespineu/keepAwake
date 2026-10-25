@@ -16,15 +16,27 @@ enum Entry {
 }
 
 struct KeepAwakeApp: App {
-    @State private var controller = KeepAwakeController()
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
         MenuBarExtra {
-            MenuView(controller: controller)
+            MenuView(controller: appDelegate.controller)
         } label: {
-            MenuBarLabel(controller: controller)
+            MenuBarLabel(controller: appDelegate.controller)
         }
         .menuBarExtraStyle(.window)
+    }
+}
+
+/// Owns the controller so `keepawake://` URLs reach it, even when they launched the app.
+@MainActor
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    let controller = KeepAwakeController(statusURL: StatusFile.defaultURL)
+
+    func application(_ application: NSApplication, open urls: [URL]) {
+        for command in urls.compactMap(AgentCommand.init(url:)) {
+            controller.handle(command)
+        }
     }
 }
 
@@ -40,7 +52,7 @@ struct MenuBarLabel: View {
 
     private var content: some View {
         HStack(spacing: 5) {
-            Image(nsImage: .mug(active: controller.isActive))
+            Image(nsImage: .mug(active: controller.isAwake))
             if let text = controller.menuBarText {
                 // Monospaced so the item does not change width as the countdown ticks.
                 Text(text).font(.system(size: NSFont.menuBarFont(ofSize: 0).pointSize, design: .monospaced))
