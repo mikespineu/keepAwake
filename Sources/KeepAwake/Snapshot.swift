@@ -39,9 +39,33 @@ enum Snapshot {
                 }
                 controller.turnOff()
             }
+
+            // Only an agent keeps the Mac awake, with Claude Code connected.
+            UserDefaults().removePersistentDomain(forName: suiteName)
+            let lid = LidSleepOverride(fileExists: { _ in false }, helperScriptPath: "snapshot", isSandboxed: false)
+            let controller = KeepAwakeController(defaults: UserDefaults(suiteName: suiteName)!, lid: lid)
+            controller.handle(.hold(HoldRequest(id: "claude-code:snapshot", name: "Claude Code", minutes: 30, pid: nil)))
+            let scene = SnapshotScene(controller: controller, installer: connectedInstaller)
+            if let menu = render(scene, appearance: appearance) {
+                write(menu, to: outputDirectory.appendingPathComponent("menu-agents-\(name).png"))
+            }
+            controller.turnOff()
         }
         UserDefaults().removePersistentDomain(forName: suiteName)
     }
+
+    /// An installer whose throwaway home has the Claude Code hooks, so it shows as connected.
+    private static let connectedInstaller: AgentInstaller = {
+        let home = FileManager.default.temporaryDirectory.appendingPathComponent("keepAwake.snapshot-home", isDirectory: true)
+        try? FileManager.default.removeItem(at: home)
+        let installer = AgentInstaller(
+            home: home,
+            executable: "/Applications/keepAwake.app/Contents/MacOS/KeepAwake",
+            runShell: { _ in (0, "") }
+        )
+        _ = try? installer.install(.claudeCode)
+        return installer
+    }()
 
     private static var appStoreDirectory: URL {
         let url = URL(fileURLWithPath: "docs/appstore")
@@ -81,6 +105,8 @@ enum Snapshot {
 /// Menu bar strip with the status item, and the menu panel below it.
 private struct SnapshotScene: View {
     let controller: KeepAwakeController
+    /// A folder that doesn't exist by default, so no agent shows as connected.
+    var installer = AgentInstaller(home: URL(fileURLWithPath: "/nonexistent"))
 
     var body: some View {
         VStack(alignment: .trailing, spacing: 8) {
@@ -99,8 +125,7 @@ private struct SnapshotScene: View {
             .frame(height: 26)
             .background(Color(nsColor: .windowBackgroundColor).opacity(0.85))
 
-            // A folder that doesn't exist, so no agent shows as connected.
-            MenuView(controller: controller, installer: AgentInstaller(home: URL(fileURLWithPath: "/nonexistent")))
+            MenuView(controller: controller, installer: installer)
                 .background(Color(nsColor: .windowBackgroundColor))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(.primary.opacity(0.15)))
