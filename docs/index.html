@@ -116,6 +116,18 @@
       padding: 12px 14px; overflow-x: auto; margin: 10px 0 0; font-size: 14px;
     }
     pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+    .small { font-size: 15px; }
+    .gk { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 24px; align-items: start; margin: 14px 0 4px; }
+    .gk-shot { margin: 0; }
+    .gk-shot img { width: 100%; height: auto; display: block; border-radius: 22px; box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3); }
+    .gk-shot figcaption { color: var(--text); font-size: 15px; text-align: center; margin-top: 10px; }
+    .gk-steps p { margin: 0 0 10px; }
+    .mock { background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 0 0 12px; font-size: 14px; }
+    .mock-title { font-weight: 700; margin-bottom: 8px; color: var(--text); }
+    .mock-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--text); }
+    .mock-btn { background: var(--surface); border: 1px solid var(--line); border-radius: 7px; padding: 3px 12px; font-weight: 600; box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.45); white-space: nowrap; }
+    .heads-up { color: var(--muted); font-size: 14px; margin-top: 6px; }
+    .heads-up a { color: inherit; }
     details { margin-top: 10px; }
     summary { cursor: pointer; color: var(--text); font-weight: 600; }
 
@@ -125,7 +137,8 @@
 
     @media (max-width: 760px) {
       header.hero { padding: 48px 0 32px; }
-      .shots, .features { grid-template-columns: minmax(0, 1fr); }
+      .shots, .features, .gk { grid-template-columns: minmax(0, 1fr); }
+      .gk-shot { max-width: 270px; margin: 0 auto; }
       ol.steps > li { padding: 16px 16px 16px 60px; }
       ol.steps > li::before { left: 16px; top: 16px; }
     }
@@ -142,6 +155,7 @@
         Download for Mac
       </a>
       <div class="meta"><span id="version">Latest version</span> · macOS 14 or newer · Apple Silicon &amp; Intel · Free, <a href="https://github.com/mikespineu/keepAwake">open source</a></div>
+      <div class="heads-up">First launch needs one extra permission step — <a href="#gatekeeper">see how</a>.</div>
     </div>
   </header>
 
@@ -194,17 +208,38 @@
           <p>Open a new Finder window, choose <span class="path">Applications</span> in the sidebar, and drag <code>keepAwake.app</code> into it.</p>
         </li>
         <li>
-          <h3>Open it the first time</h3>
-          <p>Double-click keepAwake in Applications. Because the app isn't notarized by Apple, macOS stops it with a message like <em>“Apple could not verify keepAwake is free of malware”</em>. Click <span class="path">Done</span>, then:</p>
-          <ul>
-            <li>Open <span class="path">Apple menu → System Settings → Privacy &amp; Security</span>.</li>
-            <li>Scroll down to <span class="path">Security</span>. Next to <em>“keepAwake was blocked to protect your Mac”</em>, click <span class="path">Open Anyway</span>.</li>
-            <li>Confirm with your password or Touch ID, then click <span class="path">Open Anyway</span> once more.</li>
-          </ul>
-          <div class="note">You only do this once. keepAwake is free and open source — you can read every line of the <a href="https://github.com/mikespineu/keepAwake">source code</a> or build it yourself.</div>
+          <h3 id="gatekeeper">Allow it in Privacy &amp; Security (first launch only)</h3>
+          <p>keepAwake is from an independent developer and isn't notarized by Apple, so the first time you open it macOS blocks it. This is expected — you just have to give it permission once.</p>
+
+          <div class="gk">
+            <figure class="gk-shot">
+              <img src="gatekeeper-not-opened.png" alt="macOS dialog: “keepAwake” Not Opened. Apple could not verify “keepAwake” is free of malware. Buttons: Move to Trash, Done." width="270" height="296" loading="lazy">
+              <figcaption>Click <b>Done</b> — not “Move to Trash”.</figcaption>
+            </figure>
+            <div class="gk-steps">
+              <p><b>a.</b> Double-click keepAwake in Applications. You'll see <em>“keepAwake” Not Opened</em>. Click <span class="path">Done</span>.</p>
+              <p><b>b.</b> Open <span class="path">Apple menu → System Settings → Privacy &amp; Security</span>.</p>
+              <p><b>c.</b> Scroll down to the <span class="path">Security</span> section. You'll find this message — click <span class="path">Open Anyway</span>:</p>
+              <div class="mock" aria-hidden="true">
+                <div class="mock-title">Security</div>
+                <div class="mock-row">
+                  <span>“keepAwake” was blocked to protect your Mac.</span>
+                  <span class="mock-btn">Open Anyway</span>
+                </div>
+              </div>
+              <p><b>d.</b> Enter your password or use Touch ID.</p>
+              <p><b>e.</b> macOS asks one more time — click <span class="path">Open Anyway</span>. keepAwake starts and the mug appears in the menu bar.</p>
+            </div>
+          </div>
+
+          <div class="note">
+            <b>No “Open Anyway” button?</b> It only shows up for about an hour after macOS blocked the app. Double-click keepAwake again, click <b>Done</b>, and go back to Privacy &amp; Security.<br>
+            You don't need to change <em>“Allow applications from”</em> or turn off any protection — the button above allows only keepAwake.
+          </div>
+          <p class="small">You'll do this once per download, so again after installing an update. keepAwake is free and open source — you can read every line of the <a href="https://github.com/mikespineu/keepAwake">source code</a> or build it yourself.</p>
           <details>
             <summary>Prefer Terminal?</summary>
-            <p>Remove the download quarantine flag, then open the app normally:</p>
+            <p>Instead of steps a–e, remove the download quarantine flag, then open the app normally:</p>
             <pre><code>xattr -dr com.apple.quarantine /Applications/keepAwake.app</code></pre>
           </details>
         </li>

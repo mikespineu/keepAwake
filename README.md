@@ -4,7 +4,33 @@ A tiny macOS menu bar app that keeps your Mac from going to sleep — for a set 
 
 **[⬇ Download for Mac](https://github.com/mikespineu/keepAwake/releases/latest/download/keepAwake.zip)** (macOS 14+, Apple Silicon & Intel) · [Website with install guide](https://mikespineu.github.io/keepAwake/)
 
-Unzip, drag `keepAwake.app` to Applications and open it. The app isn't notarized by Apple, so the first time macOS blocks it: go to **System Settings → Privacy & Security** and click **Open Anyway**.
+Unzip, drag `keepAwake.app` to Applications and open it. The first launch needs one permission step, see [First launch](#first-launch-allow-keepawake-in-privacy--security).
+
+## First launch: allow keepAwake in Privacy & Security
+
+keepAwake is from an independent developer and isn't notarized by Apple, so the first time you open a downloaded copy macOS blocks it. This is expected; you give it permission once.
+
+<img src="docs/gatekeeper-not-opened.png" alt="macOS dialog: “keepAwake” Not Opened" width="270" align="right">
+
+1. Double-click keepAwake in Applications. macOS shows **“keepAwake” Not Opened**. Click **Done**, not *Move to Trash*.
+2. Open **Apple menu → System Settings → Privacy & Security**.
+3. Scroll down to **Security**. Next to *“keepAwake” was blocked to protect your Mac*, click **Open Anyway**.
+4. Enter your password or use Touch ID.
+5. macOS asks once more. Click **Open Anyway**. The mug appears in the menu bar.
+
+**No “Open Anyway” button?** It only shows up for about an hour after macOS blocked the app. Open keepAwake again, click **Done**, and go back to Privacy & Security.
+
+You don't need to change *“Allow applications from”* or disable any protection: **Open Anyway** allows only keepAwake. You'll repeat this after downloading an update.
+
+Prefer Terminal? Instead of steps 1–5, remove the download quarantine flag, then open the app normally:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/keepAwake.app
+```
+
+Apps you build yourself with `./build.sh` are not quarantined and open without this step.
+
+<br clear="right">
 
 <table>
   <tr>
