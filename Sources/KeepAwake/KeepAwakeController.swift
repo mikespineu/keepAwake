@@ -1,0 +1,216 @@
+import Foundation
+import Observation
+import ServiceManagement
+import UserNotifications
+
+/// Holds keepAwake state and enforces the stop rules (time limit, battery limit).
+@MainActor
+@Observable
+final class KeepAwakeController {
+    private enum Key {
+        static let batteryLimitEnabled = "batteryLimitEnabled"
+        static let batteryThreshold = "batteryThreshold"
+        static let preventDisplaySleep = "preventDisplaySleep"
+        static let customHours = "customHours"
+        static let customMinutes = "customMinutes"
+    }
+
+    private(set) var isActive = false
+    /// nil while active means "always on".
+    private(set) var endDate: Date?
+    private(set) var now = Date()
+    private(set) var lastStopReason: String?
+    private(set) var launchAtLogin = SMAppService.mainApp.status == .enabled
+
+    var batteryLimitEnabled: Bool {
+        didSet {
+            defaults.set(batteryLimitEnabled, forKey: Key.batteryLimitEnabled)
+            enforceBatteryLimit()
+        }
+    }
+
+    var batteryThreshold: Int {
+        didSet {
+            defaults.set(batteryThreshold, forKey: Key.batteryThreshold)
+            enforceBatteryLimit()
+        }
+    }
+
+    var preventDisplaySleep: Bool {
+        didSet {
+            defaults.set(preventDisplaySleep, forKey: Key.preventDisplaySleep)
+            if isActive { assertion.acquire(preventDisplaySleep: preventDisplaySleep) }
+        }
+    }
+
+    var customHours: Int {
+        didSet { defaults.set(customHours, forKey: Key.customHours) }
+    }
+
+    var customMinutes: Int {
+        didSet { defaults.set(customMinutes, forKey: Key.customMinutes) }
+    }
+
+    let battery = BatteryMonitor()
+
+    @ObservationIgnored private let assertion = SleepAssertion()
+    @ObservationIgnored private var ticker: Timer?
+    @ObservationIgnored private let defaults: UserDefaults
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        defaults.register(defaults: [
+            Key.batteryLimitEnabled: true,
+            Key.batteryThreshold: 10,
+            Key.preventDisplaySleep: false,
+            Key.customHours: 1,
+            Key.customMinutes: 0,
+        ])
+        batteryLimitEnabled = defaults.bool(forKey: Key.batteryLimitEnabled)
+        batteryThreshold = defaults.integer(forKey: Key.batteryThreshold)
+        preventDisplaySleep = defaults.bool(forKey: Key.preventDisplaySleep)
+        customHours = defaults.integer(forKey: Key.customHours)
+        customMinutes = defaults.integer(forKey: Key.customMinutes)
+
+        battery.onChange = { [weak self] in self?.enforceBatteryLimit() }
+    }
+
+    // MARK: - Activation
+
+    /// Starts keeping the Mac awake. `minutes == nil` means no time limit.
+    func start(minutes: Int?) {
+        lastStopReason = nil
+
+        if let reason = batteryLimitViolation() {
+            lastStopReason = "Not started: \(reason)"
+            return
+        }
+        guard assertion.acquire(preventDisplaySleep: preventDisplaySleep) else {
+            lastStopReason = "The system refused the sleep assertion."
+            return
+        }
+
+        now = Date()
+        endDate = minutes.map { now.addingTimeInterval(TimeInterval($0 * 60)) }
+        isActive = true
+        startTicker()
+    }
+
+    func startCustom() {
+        let total = customHours * 60 + customMinutes
+        guard total > 0 else { return }
+        start(minutes: total)
+    }
+
+    func stop(reason: String? = nil) {
+        assertion.release()
+        ticker?.invalidate()
+        ticker = nil
+        isActive = false
+        endDate = nil
+        lastStopReason = reason.map { "Stopped: \($0)" }
+        if let reason { notify(reason) }
+    }
+
+    // MARK: - Rules
+
+    private func startTicker() {
+        ticker?.invalidate()
+        ticker = nil
+        guard endDate != nil else { return }
+
+        let timer = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.tick() }
+        }
+        // .common keeps the countdown running while the menu is open.
+        RunLoop.main.add(timer, forMode: .common)
+        ticker = timer
+    }
+
+    private func tick() {
+        now = Date()
+        if let endDate, now >= endDate {
+            stop(reason: "time is up.")
+        }
+    }
+
+    private func enforceBatteryLimit() {
+        guard isActive, let reason = batteryLimitViolation() else { return }
+        stop(reason: reason)
+    }
+
+    /// The battery rule only applies while running on battery power.
+    private func batteryLimitViolation() -> String? {
+        let state = battery.state
+        guard batteryLimitEnabled, state.isOnBattery, let percent = state.percent,
+              percent < batteryThreshold
+        else { return nil }
+        return "battery \(percent)% < \(batteryThreshold)%."
+    }
+
+    // MARK: - Display helpers
+
+    var remaining: TimeInterval? {
+        guard isActive, let endDate else { return nil }
+        return max(0, endDate.timeIntervalSince(now))
+    }
+
+    /// Compact text for the menu bar, e.g. "1:05" (h:mm) or "12:30" (mm:ss).
+    var menuBarText: String? {
+        guard let remaining else { return nil }
+        let total = Int(remaining.rounded(.up))
+        let hours = total / 3600
+        let minutes = (total % 3600) / 60
+        let seconds = total % 60
+        if hours > 0 {
+            return String(format: "%d:%02d", hours, minutes)
+        }
+        return String(format: "%d:%02d", minutes, seconds)
+    }
+
+    var statusText: String {
+        guard isActive else { return "Inactive" }
+        guard let remaining, let endDate else { return "Active · always" }
+        let total = Int(remaining.rounded(.up))
+        let countdown = String(format: "%d:%02d:%02d", total / 3600, (total % 3600) / 60, total % 60)
+        return "Active · \(countdown) (until \(endDate.formatted(date: .omitted, time: .shortened)))"
+    }
+
+    var batteryText: String {
+        let state = battery.state
+        guard let percent = state.percent else { return "No battery" }
+        let source = state.isOnBattery ? "on battery" : (state.isCharging ? "charging" : "power adapter")
+        return "Battery \(percent)% · \(source)"
+    }
+
+    // MARK: - Launch at login
+
+    func setLaunchAtLogin(_ enabled: Bool) {
+        do {
+            if enabled {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+        } catch {
+            lastStopReason = "Launch at login: \(error.localizedDescription)"
+        }
+        launchAtLogin = SMAppService.mainApp.status == .enabled
+    }
+
+    // MARK: - Notifications
+
+    private func notify(_ body: String) {
+        // UserNotifications crashes outside an app bundle (e.g. `swift run`).
+        guard Bundle.main.bundleIdentifier != nil else { return }
+        Task {
+            let center = UNUserNotificationCenter.current()
+            guard (try? await center.requestAuthorization(options: [.alert, .sound])) == true else { return }
+            let content = UNMutableNotificationContent()
+            content.title = "keepAwake stopped"
+            content.body = body.prefix(1).uppercased() + body.dropFirst()
+            let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+            try? await center.add(request)
+        }
+    }
+}
