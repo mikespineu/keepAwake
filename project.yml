@@ -1,0 +1,36 @@
+# XcodeGen spec for the App Store build. Regenerate the project after editing:
+#   xcodegen generate
+# Version numbers live here and are used by both Xcode and build.sh.
+name: keepAwake
+options:
+  bundleIdPrefix: com.michalkrecisz
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: 1.0.0
+    CURRENT_PROJECT_VERSION: 1
+targets:
+  keepAwake:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/KeepAwake
+      - path: Resources/Assets.xcassets
+      - path: Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_NAME: keepAwake
+        PRODUCT_BUNDLE_IDENTIFIER: com.michalkrecisz.keepAwake
+        INFOPLIST_FILE: Resources/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: Resources/keepAwake.entitlements
+        CODE_SIGN_STYLE: Automatic
+        # Set your Team ID in Xcode (Signing & Capabilities) or here.
+        DEVELOPMENT_TEAM: ""
+        ENABLE_HARDENED_RUNTIME: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        COMBINE_HIDPI_IMAGES: YES

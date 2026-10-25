@@ -1,0 +1,353 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01670DAFE41D74D994CD6BA4 /* KeepAwakeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF99D99E7711DD16F845075 /* KeepAwakeController.swift */; };
+		03EFA9883A11BFC1771D65AE /* KeepAwakeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB2F300CDC06707A2B304D14 /* KeepAwakeApp.swift */; };
+		0AA00191CE338C4ECFB6014D /* BatteryMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8016652E9C2897B177C31C3A /* BatteryMonitor.swift */; };
+		304F02F2E11A4F69A1496D40 /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D72A33862B9826D73856B9 /* MenuView.swift */; };
+		A7FA5FF26DA947FFC8F71C85 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B59B0834EB4F2881929B3D05 /* Assets.xcassets */; };
+		AE50799CFA95C76DE0CB33A0 /* SleepAssertion.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB755993FF8B2CA9E9384583 /* SleepAssertion.swift */; };
+		B06E8EFFAF5FA8CFC9B28C3F /* Snapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5578E9368BDBA2197383B4D /* Snapshot.swift */; };
+		EBDF7250A559D5E72F781A68 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 915AB8CA37685E2F0F1FBE2B /* PrivacyInfo.xcprivacy */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		34D72A33862B9826D73856B9 /* MenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
+		4CCB37E44BBDB29E2A4B913C /* keepAwake.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = keepAwake.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8016652E9C2897B177C31C3A /* BatteryMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatteryMonitor.swift; sourceTree = "<group>"; };
+		915AB8CA37685E2F0F1FBE2B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		B59B0834EB4F2881929B3D05 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CB755993FF8B2CA9E9384583 /* SleepAssertion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepAssertion.swift; sourceTree = "<group>"; };
+		D5578E9368BDBA2197383B4D /* Snapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Snapshot.swift; sourceTree = "<group>"; };
+		DB2F300CDC06707A2B304D14 /* KeepAwakeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeepAwakeApp.swift; sourceTree = "<group>"; };
+		DCF99D99E7711DD16F845075 /* KeepAwakeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeepAwakeController.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		2166FEB70BA0FB550ACCEC68 = {
+			isa = PBXGroup;
+			children = (
+				C51A30234F77F6EA0DC564A7 /* Resources */,
+				6D4966F98496BB92852955D9 /* Sources */,
+				6C77FEDD0A3F75558B7185B3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6C77FEDD0A3F75558B7185B3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4CCB37E44BBDB29E2A4B913C /* keepAwake.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6D4966F98496BB92852955D9 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				769292F4EA6DE34B87007393 /* KeepAwake */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		769292F4EA6DE34B87007393 /* KeepAwake */ = {
+			isa = PBXGroup;
+			children = (
+				8016652E9C2897B177C31C3A /* BatteryMonitor.swift */,
+				DB2F300CDC06707A2B304D14 /* KeepAwakeApp.swift */,
+				DCF99D99E7711DD16F845075 /* KeepAwakeController.swift */,
+				34D72A33862B9826D73856B9 /* MenuView.swift */,
+				CB755993FF8B2CA9E9384583 /* SleepAssertion.swift */,
+				D5578E9368BDBA2197383B4D /* Snapshot.swift */,
+			);
+			path = KeepAwake;
+			sourceTree = "<group>";
+		};
+		C51A30234F77F6EA0DC564A7 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B59B0834EB4F2881929B3D05 /* Assets.xcassets */,
+				915AB8CA37685E2F0F1FBE2B /* PrivacyInfo.xcprivacy */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8EC71324AC48F5D5ACB56A2B /* keepAwake */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 35990D3ECBDE95CE56E6A382 /* Build configuration list for PBXNativeTarget "keepAwake" */;
+			buildPhases = (
+				1AE0ACDD6574D49A064CCD80 /* Sources */,
+				0D1E34F6EBC68B81F0E0D4FD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = keepAwake;
+			packageProductDependencies = (
+			);
+			productName = keepAwake;
+			productReference = 4CCB37E44BBDB29E2A4B913C /* keepAwake.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		22A126D7D204A5934DAB9B8F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					8EC71324AC48F5D5ACB56A2B = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 940F912C5BCE2DE12AE8AFF1 /* Build configuration list for PBXProject "keepAwake" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 2166FEB70BA0FB550ACCEC68;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 6C77FEDD0A3F75558B7185B3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8EC71324AC48F5D5ACB56A2B /* keepAwake */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0D1E34F6EBC68B81F0E0D4FD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A7FA5FF26DA947FFC8F71C85 /* Assets.xcassets in Resources */,
+				EBDF7250A559D5E72F781A68 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1AE0ACDD6574D49A064CCD80 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0AA00191CE338C4ECFB6014D /* BatteryMonitor.swift in Sources */,
+				03EFA9883A11BFC1771D65AE /* KeepAwakeApp.swift in Sources */,
+				01670DAFE41D74D994CD6BA4 /* KeepAwakeController.swift in Sources */,
+				304F02F2E11A4F69A1496D40 /* MenuView.swift in Sources */,
+				AE50799CFA95C76DE0CB33A0 /* SleepAssertion.swift in Sources */,
+				B06E8EFFAF5FA8CFC9B28C3F /* Snapshot.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0F73FC4F0413457BDFA2B0DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Resources/keepAwake.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.michalkrecisz.keepAwake;
+				PRODUCT_NAME = keepAwake;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		5BC554B2BFA02149AA93275A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		6AA51387E4CC66007FD522D5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		AE5BF28DC4CF7D44CC2689CE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Resources/keepAwake.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.michalkrecisz.keepAwake;
+				PRODUCT_NAME = keepAwake;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		35990D3ECBDE95CE56E6A382 /* Build configuration list for PBXNativeTarget "keepAwake" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AE5BF28DC4CF7D44CC2689CE /* Debug */,
+				0F73FC4F0413457BDFA2B0DD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		940F912C5BCE2DE12AE8AFF1 /* Build configuration list for PBXProject "keepAwake" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6AA51387E4CC66007FD522D5 /* Debug */,
+				5BC554B2BFA02149AA93275A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 22A126D7D204A5934DAB9B8F /* Project object */;
+}

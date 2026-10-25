@@ -19,15 +19,32 @@ enum Snapshot {
                 let controller = KeepAwakeController(defaults: UserDefaults(suiteName: suiteName)!)
                 if active { controller.start(minutes: 90) }
 
-                let file = outputDirectory.appendingPathComponent("menu-\(active ? "active" : "inactive")-\(name).png")
-                render(SnapshotScene(controller: controller), appearance: appearance, to: file)
+                let state = active ? "active" : "inactive"
+                let file = outputDirectory.appendingPathComponent("menu-\(state)-\(name).png")
+                guard let menu = render(SnapshotScene(controller: controller), appearance: appearance) else { continue }
+                write(menu, to: file)
+
+                // 1440×900 pt → 2880×1800 px on Retina, a valid Mac App Store size.
+                // The menu is embedded as a bitmap so AppKit controls scale cleanly.
+                let menuImage = NSImage(size: NSSize(width: menu.pixelsWide / 2, height: menu.pixelsHigh / 2))
+                menuImage.addRepresentation(menu)
+                let store = AppStoreScene(menu: menuImage, active: active)
+                if let rep = render(store, appearance: appearance) {
+                    write(rep, to: appStoreDirectory.appendingPathComponent("appstore-\(state)-\(name).png"))
+                }
                 controller.stop()
             }
         }
         UserDefaults().removePersistentDomain(forName: suiteName)
     }
 
-    private static func render(_ view: some View, appearance: NSAppearance.Name, to url: URL) {
+    private static var appStoreDirectory: URL {
+        let url = URL(fileURLWithPath: "docs/appstore")
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url
+    }
+
+    private static func render(_ view: some View, appearance: NSAppearance.Name) -> NSBitmapImageRep? {
         let hosting = NSHostingView(rootView: view)
         hosting.appearance = NSAppearance(named: appearance)
         hosting.frame.size = hosting.fittingSize
@@ -44,11 +61,15 @@ enum Snapshot {
         hosting.layoutSubtreeIfNeeded()
         RunLoop.main.run(until: Date().addingTimeInterval(0.3))
 
-        guard let rep = hosting.bitmapImageRepForCachingDisplay(in: hosting.bounds) else { return }
+        defer { window.orderOut(nil) }
+        guard let rep = hosting.bitmapImageRepForCachingDisplay(in: hosting.bounds) else { return nil }
         hosting.cacheDisplay(in: hosting.bounds, to: rep)
+        return rep
+    }
+
+    private static func write(_ rep: NSBitmapImageRep, to url: URL) {
         try? rep.representation(using: .png, properties: [:])?.write(to: url)
-        window.orderOut(nil)
-        print("Wrote \(url.path)")
+        print("Wrote \(url.path) (\(rep.pixelsWide)×\(rep.pixelsHigh))")
     }
 }
 
@@ -83,6 +104,47 @@ private struct SnapshotScene: View {
         .frame(width: 460)
         .background(
             LinearGradient(colors: [Color(red: 0.36, green: 0.42, blue: 0.75), Color(red: 0.75, green: 0.45, blue: 0.62)],
+                           startPoint: .topLeading, endPoint: .bottomTrailing)
+        )
+    }
+}
+
+/// Mac App Store screenshot: headline on the left, the menu on the right.
+private struct AppStoreScene: View {
+    let menu: NSImage
+    let active: Bool
+
+    private var headline: String { active ? "Stops on its own." : "Keep your Mac awake." }
+    private var subtitle: String {
+        active
+            ? "When the time is up or the battery drops below your limit, keepAwake lets your Mac sleep again."
+            : "15 minutes, a few hours, or always. One click in the menu bar."
+    }
+
+    var body: some View {
+        HStack(spacing: 64) {
+            VStack(alignment: .leading, spacing: 24) {
+                Text(headline)
+                    .font(.system(size: 64, weight: .bold))
+                Text(subtitle)
+                    .font(.system(size: 28, weight: .regular))
+                    .opacity(0.85)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .foregroundStyle(.white)
+            .frame(width: 480, alignment: .leading)
+
+            Image(nsImage: menu)
+                .resizable()
+                .interpolation(.high)
+                .aspectRatio(contentMode: .fit)
+                .frame(height: 700)
+                .clipShape(RoundedRectangle(cornerRadius: 24))
+                .shadow(color: .black.opacity(0.35), radius: 30, y: 16)
+        }
+        .frame(width: 1440, height: 900)
+        .background(
+            LinearGradient(colors: [Color(red: 0.16, green: 0.18, blue: 0.42), Color(red: 0.45, green: 0.25, blue: 0.52)],
                            startPoint: .topLeading, endPoint: .bottomTrailing)
         )
     }
