@@ -2,7 +2,7 @@
 
 A tiny macOS menu bar app that keeps your Mac from going to sleep — for a set time, forever, or until the battery runs low.
 
-**[⬇ Download for Mac](https://github.com/mikespineu/keepAwake/releases/latest/download/keepAwake.zip)** (macOS 14+, Apple Silicon & Intel) · [Website with install guide](https://mikespineu.github.io/keepAwake/)
+**[⬇ Download for Mac](https://github.com/mikespineu/keepAwake/releases/latest/download/keepAwake.zip)** (macOS 14+, Apple Silicon & Intel) · [Website with install guide](https://mikespineu.github.io/keepAwake/) · [What's new](CHANGELOG.md)
 
 Unzip, drag `keepAwake.app` to Applications and open it. The first launch needs one permission step, see [First launch](#first-launch-allow-keepawake-in-privacy--security).
 
@@ -177,8 +177,9 @@ sudo rm -f /etc/sudoers.d/keepawake
 ## Publishing a release
 
 1. Bump `MARKETING_VERSION` (and `CURRENT_PROJECT_VERSION`) in `project.yml`.
-2. Commit and push.
-3. Run the release script:
+2. Add a `## <version> — <date>` section to [CHANGELOG.md](CHANGELOG.md) and update *What's new* in `docs/index.html`. The release notes start with that changelog section; the script stops if it is missing.
+3. Commit and push.
+4. Run the release script:
 
    ```bash
    ./release.sh
