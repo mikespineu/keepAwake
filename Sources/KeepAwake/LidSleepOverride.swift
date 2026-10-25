@@ -117,6 +117,23 @@ final class LidSleepOverride {
 
     var isInstalled: Bool { fileExists(Self.sudoersPath) }
 
+    /// Installs the sudoers rule; macOS asks for an admin password.
+    /// Returns false if the user cancelled or the install failed.
+    func install() async -> Bool {
+        guard let helperScriptPath else { return false }
+        let runner = runner
+        // Paths go in as argv, so nothing is spliced into the AppleScript source.
+        let arguments = [
+            "-e", "on run argv",
+            "-e", "do shell script \"/bin/sh \" & quoted form of item 1 of argv & \" install \" & quoted form of item 2 of argv with prompt \"keepAwake needs your admin password once to keep your Mac awake with the lid closed.\" with administrator privileges",
+            "-e", "end run",
+            helperScriptPath, NSUserName(),
+        ]
+        // osascript blocks until the password dialog is answered: keep it off the main thread.
+        let result = await Task.detached { runner.run("/usr/bin/osascript", arguments) }.value
+        return result.status == 0 && isInstalled
+    }
+
     /// Returns false if sudo refused (helper not installed).
     func enable() -> Bool {
         guard setSleepDisabled(true) else { return false }

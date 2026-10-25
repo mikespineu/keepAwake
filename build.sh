@@ -41,7 +41,7 @@ else
     swift build -c release
     cp "$(swift build -c release --show-bin-path)/$EXECUTABLE" "$APP_DIR/Contents/MacOS/$EXECUTABLE"
 fi
-cp Resources/AppIcon.icns Resources/PrivacyInfo.xcprivacy "$APP_DIR/Contents/Resources/"
+cp Resources/AppIcon.icns Resources/PrivacyInfo.xcprivacy Resources/lid-sleep-helper.sh "$APP_DIR/Contents/Resources/"
 # SwiftPM does not compile the asset catalog: ship the menu bar images as loose PNGs,
 # which NSImage(named:) finds the same way.
 cp Resources/Assets.xcassets/MenuBarIcon*.imageset/*.png "$APP_DIR/Contents/Resources/"
@@ -54,9 +54,9 @@ sed -e "s/\$(EXECUTABLE_NAME)/$EXECUTABLE/" \
     -e "s/\$(MACOSX_DEPLOYMENT_TARGET)/$MIN_MACOS/" \
     Resources/Info.plist > "$APP_DIR/Contents/Info.plist"
 
-# Ad-hoc signature with the App Store sandbox entitlements, so local builds
-# behave like the store version.
-codesign --force --sign - --entitlements Resources/keepAwake.entitlements "$APP_DIR"
+# Ad-hoc signature without the App Sandbox: the lid-closed mode runs sudo and
+# osascript, which the sandbox blocks. App Store builds use the Xcode project.
+codesign --force --sign - "$APP_DIR"
 
 echo "Built $APP_DIR ($VERSION, build $BUILD_NUMBER, $(lipo -archs "$APP_DIR/Contents/MacOS/$EXECUTABLE"))"
 

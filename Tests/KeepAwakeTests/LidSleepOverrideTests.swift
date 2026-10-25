@@ -76,6 +76,35 @@ struct LidSleepOverrideTests {
         #expect(!LidSleepOverride(runner: runner, helperScriptPath: nil, isSandboxed: false).isAvailable)
     }
 
+    @Test func installRunsOsascriptWithArgv() async {
+        let runner = FakeRunner()
+        let lid = LidSleepOverride(
+            runner: runner,
+            fileExists: { _ in runner.ran("/usr/bin/osascript") },
+            helperScriptPath: "/App/h.sh"
+        )
+        #expect(await lid.install())
+        let call = runner.calls.last
+        #expect(call?.path == "/usr/bin/osascript")
+        // Script path and user name go in as argv, never spliced into the AppleScript source.
+        #expect(call?.args.suffix(2) == ["/App/h.sh", NSUserName()])
+        #expect(call?.args.contains { $0.contains("with administrator privileges") } == true)
+    }
+
+    @Test func installReturnsFalseWhenCancelled() async {
+        let runner = FakeRunner()
+        runner.results["/usr/bin/osascript"] = 1
+        let lid = LidSleepOverride(runner: runner, fileExists: { _ in false }, helperScriptPath: "/x.sh")
+        #expect(!(await lid.install()))
+    }
+
+    @Test func installWithoutHelperScriptFails() async {
+        let runner = FakeRunner()
+        let lid = LidSleepOverride(runner: runner, fileExists: { _ in false }, helperScriptPath: nil)
+        #expect(!(await lid.install()))
+        #expect(runner.calls.isEmpty)
+    }
+
     @Test func installedWhenSudoersFileExists() {
         var checked: [String] = []
         let lid = LidSleepOverride(runner: FakeRunner(), fileExists: { checked.append($0); return true })
