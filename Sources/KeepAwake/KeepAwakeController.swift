@@ -21,7 +21,7 @@ final class KeepAwakeController {
     }
 
     /// Longest custom duration: exactly this many days.
-    static let maxCustomDays = 30
+    nonisolated static let maxCustomDays = 30
 
     private(set) var isActive = false
     /// nil while active means "always on".
