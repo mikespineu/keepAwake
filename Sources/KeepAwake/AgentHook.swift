@@ -66,7 +66,9 @@ enum AgentHook {
         out: (String) -> Void
     ) -> Int32 {
         let input = (try? stdin.readToEnd()) ?? Data()
-        let (command, stdout) = response(for: input, parentPID: parentPID(from: args))
+        // A pid that is already gone would end the hold at once; the TTL still ends it.
+        let pid = parentPID(from: args).flatMap { client.isAlive($0) ? $0 : nil }
+        let (command, stdout) = response(for: input, parentPID: pid)
         if let command { _ = client.send(command) }
         if !stdout.isEmpty { out(stdout) }
         return 0

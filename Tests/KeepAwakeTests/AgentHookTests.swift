@@ -86,6 +86,18 @@ struct AgentHookTests {
         #expect(AgentHook.parentPID(from: ["hook"]) == nil)
     }
 
+    /// A dead pid would end the hold on the next tick, so the hook keeps only the TTL.
+    @Test func hookDropsDeadParentPid() throws {
+        let app = FakeApp()
+        var client = app.client
+        client.isAlive = { $0 != 999_999 }
+        let pipe = Pipe()
+        pipe.fileHandleForWriting.write(Data(#"{"hook_event_name":"UserPromptSubmit","session_id":"abc"}"#.utf8))
+        try pipe.fileHandleForWriting.close()
+        _ = AgentHook.run(args: ["hook", "--pid", "999999"], stdin: pipe.fileHandleForReading, client: client) { _ in }
+        #expect(app.commands == [.hold(HoldRequest(id: "claude-code:abc", name: "Claude Code", minutes: 30, pid: nil))])
+    }
+
     @Test func hookExitsZeroWhenAppMissing() throws {
         let app = FakeApp()
         app.opens = false
