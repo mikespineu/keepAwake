@@ -8,6 +8,11 @@ let package = Package(
         .executableTarget(
             name: "KeepAwake",
             path: "Sources/KeepAwake"
-        )
+        ),
+        .testTarget(
+            name: "KeepAwakeTests",
+            dependencies: ["KeepAwake"],
+            path: "Tests/KeepAwakeTests"
+        ),
     ]
 )
