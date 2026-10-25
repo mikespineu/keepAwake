@@ -61,7 +61,7 @@ Apps you build yourself with `./build.sh` are not quarantined and open without t
 - **Keep display on** (optional) — prevents the screen from dimming/sleeping too.
 - **Keep awake with lid closed** (optional) — the Mac keeps running with the lid shut, even without an external display. Turning it on the first time asks for your admin password to install a one-line sudoers rule that only allows `pmset -a disablesleep 1` and `pmset -a disablesleep 0`.
 - **Launch at login** (optional).
-- System notification when keepAwake stops by itself.
+- System notification when keepAwake stops by itself, and a sound when the time is up.
 - No Dock icon, no background daemons. Root is used only by the optional lid-closed mode.
 
 ## Requirements
@@ -144,7 +144,7 @@ The assertion is released when you turn keepAwake off, when the timer or battery
 
 The lid-closed override is a system setting that outlives the app, so it is undone in every exit path: on stop and quit, by a small watchdog process if the app crashes or is force-quit (within ~5 seconds), and on the next launch after a reboot. If the lid is closed when keepAwake stops, it puts the Mac to sleep (`pmset sleepnow`). An override you set yourself with `pmset` is never touched.
 
-Check whether the override is on:
+Check whether the override is on (`SleepDisabled 1`) or off (`SleepDisabled 0`, or no line at all):
 
 ```bash
 pmset -g | grep SleepDisabled

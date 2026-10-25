@@ -80,10 +80,16 @@ final class KeepAwakeController {
     @ObservationIgnored private var ticker: Timer?
     @ObservationIgnored private var terminationObserver: NSObjectProtocol?
     @ObservationIgnored private let defaults: UserDefaults
+    @ObservationIgnored private let playTimeUpSound: () -> Void
 
-    init(defaults: UserDefaults = .standard, lid: LidSleepOverride = LidSleepOverride()) {
+    init(
+        defaults: UserDefaults = .standard,
+        lid: LidSleepOverride = LidSleepOverride(),
+        playTimeUpSound: @escaping () -> Void = { NSSound(named: "Glass")?.play() }
+    ) {
         self.defaults = defaults
         self.lid = lid
+        self.playTimeUpSound = playTimeUpSound
         defaults.register(defaults: [
             Key.batteryLimitEnabled: true,
             Key.batteryThreshold: 10,
@@ -171,6 +177,8 @@ final class KeepAwakeController {
     func tick(at date: Date = Date()) {
         now = date
         if let endDate, now >= endDate {
+            // Played directly, so it works even with notifications turned off.
+            playTimeUpSound()
             stop(reason: "time is up.")
         }
     }

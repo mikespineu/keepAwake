@@ -3,12 +3,18 @@ import Testing
 @testable import KeepAwake
 
 @MainActor
+final class SoundCounter {
+    var count = 0
+}
+
+@MainActor
 struct KeepAwakeControllerLidTests {
     private let enableArgs = ["-n", "/usr/bin/pmset", "-a", "disablesleep", "1"]
     private let disableArgs = ["-n", "/usr/bin/pmset", "-a", "disablesleep", "0"]
 
     private let runner = FakeRunner()
     private let defaults = UserDefaults(suiteName: "keepAwakeTests-\(UUID().uuidString)")!
+    private let sounds = SoundCounter()
 
     init() {
         // A real low battery must not block start() in these tests.
@@ -23,7 +29,8 @@ struct KeepAwakeControllerLidTests {
             helperScriptPath: "/x.sh",
             isSandboxed: false
         )
-        return KeepAwakeController(defaults: defaults, lid: lid)
+        let sounds = sounds
+        return KeepAwakeController(defaults: defaults, lid: lid, playTimeUpSound: { sounds.count += 1 })
     }
 
     private var owned: Bool { defaults.bool(forKey: "lidOverrideOwned") }
@@ -60,6 +67,24 @@ struct KeepAwakeControllerLidTests {
         controller.tick(at: Date().addingTimeInterval(120))
         #expect(!controller.isActive)
         #expect(runner.sudoCalls.last == disableArgs)
+    }
+
+    @Test func timerExpiryPlaysSound() {
+        let controller = makeController()
+        controller.start(minutes: 1)
+        controller.tick(at: Date().addingTimeInterval(30))
+        #expect(sounds.count == 0)
+        controller.tick(at: Date().addingTimeInterval(120))
+        #expect(sounds.count == 1)
+        controller.tick(at: Date().addingTimeInterval(180))
+        #expect(sounds.count == 1)
+    }
+
+    @Test func manualStopIsSilent() {
+        let controller = makeController()
+        controller.start(minutes: 1)
+        controller.stop()
+        #expect(sounds.count == 0)
     }
 
     @Test func startWithoutHelperStillActivates() {
