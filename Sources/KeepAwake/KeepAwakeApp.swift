@@ -25,6 +25,10 @@ enum Entry {
             MCPServer(client: AgentClient()).run()
             exit(0)
         }
+        // `KeepAwake install|uninstall claude-code|cursor`
+        if args.first == "install" || args.first == "uninstall" {
+            exit(AgentInstaller.runCLI(args, installer: AgentInstaller(), out: { print($0) }, err: printError))
+        }
         KeepAwakeApp.main()
     }
 
