@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>keepAwake for Mac</title>
+  <meta name="description" content="A tiny menu bar app that keeps your Mac awake for a set time, forever, or until the battery runs low. Free and open source.">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <meta property="og:title" content="keepAwake for Mac">
+  <meta property="og:description" content="Keep your Mac awake from the menu bar, with a timer and a low-battery cutoff.">
+  <meta property="og:image" content="https://mikespineu.github.io/keepAwake/icon.png">
+  <style>
+    :root {
+      --bg: #0b0c0f;
+      --surface: #15171c;
+      --surface-2: #1d2027;
+      --text: #f2f3f5;
+      --muted: #a2a7b3;
+      --line: rgba(255, 255, 255, 0.08);
+      --grid: rgba(120, 150, 255, 0.07);
+      --accent: #4f8cff;
+      --accent-text: #ffffff;
+      --code-bg: #0f1115;
+      --warn-bg: rgba(255, 196, 0, 0.08);
+      --warn-line: rgba(255, 196, 0, 0.35);
+      color-scheme: dark;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f6f7f9;
+        --surface: #ffffff;
+        --surface-2: #eef0f4;
+        --text: #15171c;
+        --muted: #5b6170;
+        --line: rgba(0, 0, 0, 0.09);
+        --grid: rgba(40, 70, 200, 0.06);
+        --accent: #2563eb;
+        --code-bg: #f0f2f6;
+        --warn-bg: rgba(255, 180, 0, 0.1);
+        --warn-line: rgba(200, 140, 0, 0.45);
+        color-scheme: light;
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 32px 32px,
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 32px 32px,
+        var(--bg);
+      color: var(--text);
+      font: 17px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); }
+    code, kbd, .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+    code { background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px; padding: 0.1em 0.4em; font-size: 0.88em; overflow-wrap: anywhere; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+
+    header.hero { text-align: center; padding: 72px 0 48px; }
+    .hero img.icon { width: 148px; height: 148px; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.35)); }
+    .hero h1 { font-size: clamp(40px, 7vw, 64px); line-height: 1.05; margin: 20px 0 12px; letter-spacing: -0.02em; }
+    .hero h1 .prompt { color: var(--muted); font-weight: 500; }
+    .hero p.lead { font-size: clamp(18px, 2.4vw, 22px); color: var(--muted); max-width: 640px; margin: 0 auto 32px; }
+    .download {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--accent); color: var(--accent-text); text-decoration: none;
+      font-weight: 600; font-size: 19px; padding: 14px 28px; border-radius: 12px;
+      box-shadow: 0 10px 24px rgba(79, 140, 255, 0.3);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .download:hover { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(79, 140, 255, 0.4); }
+    .download svg { width: 20px; height: 20px; }
+    .meta { color: var(--muted); font-size: 14px; margin-top: 14px; }
+    .meta a { color: inherit; }
+
+    section { padding: 40px 0; }
+    h2 { font-size: 30px; letter-spacing: -0.01em; margin: 0 0 20px; }
+
+    .shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
+    .shots figure { margin: 0; }
+    .shots img { width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--line); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25); display: block; }
+    .shots figcaption { color: var(--muted); font-size: 15px; text-align: center; margin-top: 10px; }
+
+    .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+    .card h3 { margin: 0 0 6px; font-size: 18px; }
+    .card p { margin: 0; color: var(--muted); font-size: 15px; }
+    .card .glyph { font-family: ui-monospace, Menlo, monospace; color: var(--accent); font-size: 15px; margin-bottom: 8px; }
+
+    ol.steps { list-style: none; counter-reset: step; padding: 0; margin: 0; display: grid; gap: 14px; }
+    ol.steps > li {
+      counter-increment: step; position: relative;
+      background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+      padding: 18px 20px 18px 68px;
+    }
+    ol.steps > li::before {
+      content: counter(step); position: absolute; left: 20px; top: 18px;
+      width: 32px; height: 32px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--surface-2); border: 1px solid var(--line);
+      font-weight: 700; font-size: 15px;
+    }
+    ol.steps h3 { margin: 2px 0 4px; font-size: 18px; }
+    ol.steps p { margin: 4px 0; color: var(--muted); }
+    ol.steps ul { margin: 8px 0 0; padding-left: 20px; color: var(--muted); }
+    ol.steps ul li { margin: 4px 0; }
+    .path { color: var(--text); font-weight: 600; }
+    .note {
+      background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 12px;
+      padding: 14px 16px; margin-top: 12px; font-size: 15px; color: var(--text);
+    }
+    pre {
+      background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px;
+      padding: 12px 14px; overflow-x: auto; margin: 10px 0 0; font-size: 14px;
+    }
+    pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--text); font-weight: 600; }
+
+    footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; padding: 28px 0 48px; margin-top: 32px; }
+    footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; }
+    footer a { color: inherit; }
+
+    @media (max-width: 760px) {
+      header.hero { padding: 48px 0 32px; }
+      .shots, .features { grid-template-columns: minmax(0, 1fr); }
+      ol.steps > li { padding: 16px 16px 16px 60px; }
+      ol.steps > li::before { left: 16px; top: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <img class="icon" src="icon.png" alt="keepAwake app icon" width="148" height="148">
+      <h1><span class="prompt mono">&gt;_</span> keepAwake</h1>
+      <p class="lead">A tiny menu bar app that keeps your Mac from going to sleep — for a set time, forever, or until the battery runs low.</p>
+      <a class="download" id="download" href="https://github.com/mikespineu/keepAwake/releases/latest/download/keepAwake.zip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        Download for Mac
+      </a>
+      <div class="meta"><span id="version">Latest version</span> · macOS 14 or newer · Apple Silicon &amp; Intel · Free, <a href="https://github.com/mikespineu/keepAwake">open source</a></div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section aria-labelledby="look">
+      <h2 id="look">Lives in your menu bar</h2>
+      <div class="shots">
+        <figure>
+          <picture>
+            <source media="(prefers-color-scheme: light)" srcset="menu-inactive-light.png">
+            <img src="menu-inactive-dark.png" alt="keepAwake menu with duration presets and battery settings" width="920" height="944" loading="lazy">
+          </picture>
+          <figcaption>Pick how long to stay awake</figcaption>
+        </figure>
+        <figure>
+          <picture>
+            <source media="(prefers-color-scheme: light)" srcset="menu-active-light.png">
+            <img src="menu-active-dark.png" alt="keepAwake active with a countdown in the menu bar" width="920" height="846" loading="lazy">
+          </picture>
+          <figcaption>Countdown right next to the icon</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section aria-labelledby="features">
+      <h2 id="features">What it does</h2>
+      <div class="features">
+        <div class="card"><div class="glyph">15m · 2h · 30d · ∞</div><h3>Any duration</h3><p>Presets, a custom time of up to 30 days, or Always. Chosen each time you turn it on.</p></div>
+        <div class="card"><div class="glyph">&lt; 10%</div><h3>Battery guard</h3><p>Turns itself off when the battery drops below your limit, so a forgotten timer never drains your laptop.</p></div>
+        <div class="card"><div class="glyph">1:29</div><h3>Countdown</h3><p>Remaining time in the menu bar, plus a notification when keepAwake stops on its own.</p></div>
+        <div class="card"><div class="glyph">▢ on</div><h3>Keep display on</h3><p>Optionally stop the screen from dimming and sleeping too.</p></div>
+        <div class="card"><div class="glyph">⏻ login</div><h3>Launch at login</h3><p>Off by default; one switch if you want it always there.</p></div>
+        <div class="card"><div class="glyph">0 bytes sent</div><h3>Private</h3><p>No Dock icon, no accounts, no tracking, no internet access. <a href="https://github.com/mikespineu/keepAwake/blob/main/PRIVACY.md">Privacy policy</a>.</p></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="install">
+      <h2 id="install">Install</h2>
+      <ol class="steps">
+        <li>
+          <h3>Download</h3>
+          <p>Click <a href="https://github.com/mikespineu/keepAwake/releases/latest/download/keepAwake.zip">Download for Mac</a>. The file <code>keepAwake.zip</code> lands in your <span class="path">Downloads</span> folder.</p>
+        </li>
+        <li>
+          <h3>Unzip</h3>
+          <p>Double-click <code>keepAwake.zip</code>. macOS unpacks it into <code>keepAwake.app</code> next to it.</p>
+        </li>
+        <li>
+          <h3>Drag it to Applications</h3>
+          <p>Open a new Finder window, choose <span class="path">Applications</span> in the sidebar, and drag <code>keepAwake.app</code> into it.</p>
+        </li>
+        <li>
+          <h3>Open it the first time</h3>
+          <p>Double-click keepAwake in Applications. Because the app isn't notarized by Apple, macOS stops it with a message like <em>“Apple could not verify keepAwake is free of malware”</em>. Click <span class="path">Done</span>, then:</p>
+          <ul>
+            <li>Open <span class="path">Apple menu → System Settings → Privacy &amp; Security</span>.</li>
+            <li>Scroll down to <span class="path">Security</span>. Next to <em>“keepAwake was blocked to protect your Mac”</em>, click <span class="path">Open Anyway</span>.</li>
+            <li>Confirm with your password or Touch ID, then click <span class="path">Open Anyway</span> once more.</li>
+          </ul>
+          <div class="note">You only do this once. keepAwake is free and open source — you can read every line of the <a href="https://github.com/mikespineu/keepAwake">source code</a> or build it yourself.</div>
+          <details>
+            <summary>Prefer Terminal?</summary>
+            <p>Remove the download quarantine flag, then open the app normally:</p>
+            <pre><code>xattr -dr com.apple.quarantine /Applications/keepAwake.app</code></pre>
+          </details>
+        </li>
+        <li>
+          <h3>Click the mug in the menu bar</h3>
+          <p>There's no window or Dock icon — keepAwake lives in the menu bar at the top right. Pick a duration and you're done. Allow notifications if you want to know when it stops on its own.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="more">
+      <h2 id="more">Update &amp; uninstall</h2>
+      <div class="features">
+        <div class="card"><h3>Update</h3><p>Quit keepAwake from its menu, download the new version, and replace the app in Applications.</p></div>
+        <div class="card"><h3>Uninstall</h3><p>Quit keepAwake and move it from Applications to the Bin. Settings live in <code>~/Library/Containers/com.michalkrecisz.keepAwake</code>.</p></div>
+        <div class="card"><h3>Build it yourself</h3><p>Needs only the Xcode Command Line Tools. See the <a href="https://github.com/mikespineu/keepAwake#build-and-install">README</a>.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© 2026 Michał Kręcisz · MIT License</span>
+      <span><a href="https://github.com/mikespineu/keepAwake">GitHub</a> · <a href="https://github.com/mikespineu/keepAwake/releases">All releases</a> · <a href="https://github.com/mikespineu/keepAwake/issues">Report an issue</a></span>
+    </div>
+  </footer>
+
+  <script>
+    // Show the latest release version; the button keeps working without it.
+    fetch("https://api.github.com/repos/mikespineu/keepAwake/releases/latest")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (release) {
+        if (release && release.tag_name) {
+          document.getElementById("version").textContent = "Version " + release.tag_name.replace(/^v/, "");
+        }
+      })
+      .catch(function () {});
+  </script>
+</body>
+</html>

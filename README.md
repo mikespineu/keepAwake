@@ -2,6 +2,10 @@
 
 A tiny macOS menu bar app that keeps your Mac from going to sleep — for a set time, forever, or until the battery runs low.
 
+**[⬇ Download for Mac](https://github.com/mikespineu/keepAwake/releases/latest/download/keepAwake.zip)** (macOS 14+, Apple Silicon & Intel) · [Website with install guide](https://mikespineu.github.io/keepAwake/)
+
+Unzip, drag `keepAwake.app` to Applications and open it. The app isn't notarized by Apple, so the first time macOS blocks it: go to **System Settings → Privacy & Security** and click **Open Anyway**.
+
 <table>
   <tr>
     <td align="center"><b>Inactive</b></td>
@@ -26,7 +30,7 @@ A tiny macOS menu bar app that keeps your Mac from going to sleep — for a set 
 ## Features
 
 - **Pick a duration every time you turn it on:** 15 min, 30 min, 1 h, 2 h, 4 h, a custom days + hours + minutes value (up to 30 days), or **Always**.
-- **Countdown in the menu bar** next to the cup icon.
+- **Countdown in the menu bar** next to the mug icon.
 - **Battery guard:** turns itself off when the battery drops below X% (on by default at 10%; only applies while running on battery).
 - **Keep display on** (optional) — prevents the screen from dimming/sleeping too.
 - **Launch at login** (optional).
@@ -123,6 +127,20 @@ Quit keepAwake from its menu, then:
 rm -rf /Applications/keepAwake.app
 defaults delete com.michalkrecisz.keepAwake
 ```
+
+## Publishing a release
+
+1. Bump `MARKETING_VERSION` (and `CURRENT_PROJECT_VERSION`) in `project.yml`.
+2. Commit and push.
+3. Run the release script:
+
+   ```bash
+   ./release.sh
+   ```
+
+The script builds a universal app (`./build.sh --universal`), packs it as `keepAwake.zip` and creates the GitHub Release `v<version>`. Use `./release.sh --dry-run` to only build the zip.
+
+The website in `docs/index.html` is served by GitHub Pages from the `docs/` folder and always links to the latest release.
 
 ## Regenerating the screenshots and icon
 
