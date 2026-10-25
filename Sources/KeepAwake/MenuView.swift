@@ -150,10 +150,37 @@ struct MenuView: View {
     private var optionsSection: some View {
         VStack(alignment: .leading, spacing: 6) {
             Toggle("Keep display on", isOn: $controller.preventDisplaySleep)
+            if controller.lidModeAvailable {
+                lidSection
+            }
             Toggle("Launch at login", isOn: Binding(
                 get: { controller.launchAtLogin },
                 set: { controller.setLaunchAtLogin($0) }
             ))
+        }
+    }
+
+    private var lidSection: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Toggle("Keep awake with lid closed", isOn: Binding(
+                get: { controller.keepAwakeWithLidClosed },
+                set: { enabled in Task { await controller.setKeepAwakeWithLidClosed(enabled) } }
+            ))
+            Group {
+                if !controller.lidHelperInstalled {
+                    Text("Asks for your admin password once.")
+                } else if controller.keepAwakeWithLidClosed {
+                    Text("Don't put a running Mac in a bag — it can overheat.")
+                }
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+
+            if let message = controller.lidMessage {
+                Label(message, systemImage: "exclamationmark.triangle")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 }

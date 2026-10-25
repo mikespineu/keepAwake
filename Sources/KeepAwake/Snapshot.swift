@@ -16,7 +16,9 @@ enum Snapshot {
         for (name, appearance) in appearances {
             for active in [false, true] {
                 UserDefaults().removePersistentDomain(forName: suiteName)
-                let controller = KeepAwakeController(defaults: UserDefaults(suiteName: suiteName)!)
+                // Show the lid toggle as a fresh install sees it, whatever this Mac has installed.
+                let lid = LidSleepOverride(fileExists: { _ in false }, helperScriptPath: "snapshot", isSandboxed: false)
+                let controller = KeepAwakeController(defaults: UserDefaults(suiteName: suiteName)!, lid: lid)
                 if active { controller.start(minutes: 90) }
 
                 let state = active ? "active" : "inactive"
