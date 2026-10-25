@@ -16,6 +16,10 @@ enum Entry {
         if let command = args.first, AgentCLI.commands.contains(command) {
             exit(AgentCLI.run(args, client: AgentClient(), out: { print($0) }, err: printError))
         }
+        // Claude Code and Cursor hooks: `KeepAwake hook --pid $PPID`, event JSON on stdin.
+        if args.first == "hook" {
+            exit(AgentHook.run(args: args, stdin: .standardInput, client: AgentClient(), out: { print($0) }))
+        }
         KeepAwakeApp.main()
     }
 
