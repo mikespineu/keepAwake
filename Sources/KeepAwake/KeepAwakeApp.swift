@@ -33,18 +33,20 @@ struct MenuBarLabel: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            Image(nsImage: icon)
+            Image(nsImage: .mug(active: controller.isActive))
                 .accessibilityLabel("keepAwake")
             if let text = controller.menuBarText {
                 Text(text).monospacedDigit()
             }
         }
     }
+}
 
+extension NSImage {
     // Same mug as the app icon (scripts/generate-icon.swift). Comes from the asset catalog
     // in Xcode builds and from loose PNGs in build.sh builds.
-    private var icon: NSImage {
-        let image = NSImage(named: controller.isActive ? "MenuBarIconActive" : "MenuBarIcon") ?? NSImage()
+    static func mug(active: Bool) -> NSImage {
+        let image = NSImage(named: active ? "MenuBarIconActive" : "MenuBarIcon") ?? NSImage()
         image.isTemplate = true
         return image
     }

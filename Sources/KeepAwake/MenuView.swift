@@ -50,9 +50,14 @@ struct MenuView: View {
 
     private var header: some View {
         HStack(spacing: 10) {
-            Image(systemName: controller.isActive ? "cup.and.saucer.fill" : "cup.and.saucer")
-                .font(.title2)
+            Image(nsImage: .mug(active: controller.isActive))
+                .renderingMode(.template)
+                .resizable()
+                .interpolation(.high)
+                .aspectRatio(contentMode: .fit)
+                .frame(height: 22)
                 .foregroundStyle(controller.isActive ? Color.accentColor : .secondary)
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
                 Text("keepAwake").font(.headline)
                 Text(controller.statusText)
