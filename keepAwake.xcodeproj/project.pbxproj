@@ -11,6 +11,7 @@
 		03EFA9883A11BFC1771D65AE /* KeepAwakeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB2F300CDC06707A2B304D14 /* KeepAwakeApp.swift */; };
 		0AA00191CE338C4ECFB6014D /* BatteryMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8016652E9C2897B177C31C3A /* BatteryMonitor.swift */; };
 		304F02F2E11A4F69A1496D40 /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D72A33862B9826D73856B9 /* MenuView.swift */; };
+		466D55E7564B0628F8829B7F /* LidSleepOverride.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDBC24D9F051AC5DEBB16077 /* LidSleepOverride.swift */; };
 		A7FA5FF26DA947FFC8F71C85 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B59B0834EB4F2881929B3D05 /* Assets.xcassets */; };
 		AE50799CFA95C76DE0CB33A0 /* SleepAssertion.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB755993FF8B2CA9E9384583 /* SleepAssertion.swift */; };
 		B06E8EFFAF5FA8CFC9B28C3F /* Snapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5578E9368BDBA2197383B4D /* Snapshot.swift */; };
@@ -24,6 +25,7 @@
 		915AB8CA37685E2F0F1FBE2B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B59B0834EB4F2881929B3D05 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CB755993FF8B2CA9E9384583 /* SleepAssertion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepAssertion.swift; sourceTree = "<group>"; };
+		CDBC24D9F051AC5DEBB16077 /* LidSleepOverride.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LidSleepOverride.swift; sourceTree = "<group>"; };
 		D5578E9368BDBA2197383B4D /* Snapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Snapshot.swift; sourceTree = "<group>"; };
 		DB2F300CDC06707A2B304D14 /* KeepAwakeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeepAwakeApp.swift; sourceTree = "<group>"; };
 		DCF99D99E7711DD16F845075 /* KeepAwakeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeepAwakeController.swift; sourceTree = "<group>"; };
@@ -61,6 +63,7 @@
 				8016652E9C2897B177C31C3A /* BatteryMonitor.swift */,
 				DB2F300CDC06707A2B304D14 /* KeepAwakeApp.swift */,
 				DCF99D99E7711DD16F845075 /* KeepAwakeController.swift */,
+				CDBC24D9F051AC5DEBB16077 /* LidSleepOverride.swift */,
 				34D72A33862B9826D73856B9 /* MenuView.swift */,
 				CB755993FF8B2CA9E9384583 /* SleepAssertion.swift */,
 				D5578E9368BDBA2197383B4D /* Snapshot.swift */,
@@ -152,6 +155,7 @@
 				0AA00191CE338C4ECFB6014D /* BatteryMonitor.swift in Sources */,
 				03EFA9883A11BFC1771D65AE /* KeepAwakeApp.swift in Sources */,
 				01670DAFE41D74D994CD6BA4 /* KeepAwakeController.swift in Sources */,
+				466D55E7564B0628F8829B7F /* LidSleepOverride.swift in Sources */,
 				304F02F2E11A4F69A1496D40 /* MenuView.swift in Sources */,
 				AE50799CFA95C76DE0CB33A0 /* SleepAssertion.swift in Sources */,
 				B06E8EFFAF5FA8CFC9B28C3F /* Snapshot.swift in Sources */,
@@ -216,7 +220,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -229,7 +233,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -274,7 +278,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -293,7 +297,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;

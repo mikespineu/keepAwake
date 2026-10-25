@@ -14,6 +14,8 @@
 
 Sandbox behaviour was checked locally: power assertions, battery reading and the app container all work with the entitlement above.
 
+The *Keep awake with lid closed* mode (1.1.0) needs `sudo`, which the sandbox blocks, so the store build hides that toggle. The website zip is built by `build.sh` without the sandbox and has it.
+
 ## Steps you need to do
 
 1. **Install Xcode** from the Mac App Store, open it once, and accept the license. Then point the command line at it:
