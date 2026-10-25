@@ -25,15 +25,15 @@ enum InstallerError: Error, Equatable, LocalizedError {
 
 /// Adds keepAwake's hooks and MCP server to Claude Code and Cursor, and takes them out again.
 /// Other settings and hooks in those files are kept as they are.
-struct AgentInstaller {
+struct AgentInstaller: Sendable {
     var home: URL
     var executable: String
-    var runShell: (String) -> (status: Int32, output: String)
+    var runShell: @Sendable (String) -> (status: Int32, output: String)
 
     init(
         home: URL = FileManager.default.homeDirectoryForCurrentUser,
         executable: String = Bundle.main.executablePath ?? "",
-        runShell: @escaping (String) -> (status: Int32, output: String) = AgentInstaller.loginShell
+        runShell: @escaping @Sendable (String) -> (status: Int32, output: String) = AgentInstaller.loginShell
     ) {
         self.home = home
         self.executable = executable
@@ -202,7 +202,7 @@ struct AgentInstaller {
 
     /// Apps don't inherit the Terminal PATH, so `claude` is looked up through a login
     /// shell plus the usual install folders.
-    static func loginShell(_ command: String) -> (status: Int32, output: String) {
+    @Sendable static func loginShell(_ command: String) -> (status: Int32, output: String) {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/zsh")
         let path = "export PATH=\"$PATH:$HOME/.local/bin:$HOME/.claude/local:/opt/homebrew/bin:/usr/local/bin\"; "

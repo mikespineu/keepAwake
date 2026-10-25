@@ -3,6 +3,10 @@ import SwiftUI
 struct MenuView: View {
     @Bindable var controller: KeepAwakeController
 
+    @State private var connecting: AgentTarget?
+    @State private var connectMessage: String?
+    var installer = AgentInstaller()
+
     private let presets: [(label: String, minutes: Int?)] = [
         ("15 min", 15), ("30 min", 30), ("1 h", 60),
         ("2 h", 120), ("4 h", 240), ("Always", nil),
@@ -14,9 +18,11 @@ struct MenuView: View {
 
             Divider()
 
-            if controller.isActive {
+            if controller.isAwake {
                 activeSection
-            } else {
+            }
+            // Still offered while only agents hold the Mac awake.
+            if !controller.isActive {
                 durationSection
             }
 
@@ -29,6 +35,10 @@ struct MenuView: View {
             Divider()
 
             batterySection
+
+            Divider()
+
+            agentsSection
 
             Divider()
 
@@ -50,13 +60,13 @@ struct MenuView: View {
 
     private var header: some View {
         HStack(spacing: 10) {
-            Image(nsImage: .mug(active: controller.isActive))
+            Image(nsImage: .mug(active: controller.isAwake))
                 .renderingMode(.template)
                 .resizable()
                 .interpolation(.high)
                 .aspectRatio(contentMode: .fit)
                 .frame(height: 22)
-                .foregroundStyle(controller.isActive ? Color.accentColor : .secondary)
+                .foregroundStyle(controller.isAwake ? Color.accentColor : .secondary)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
                 Text("keepAwake").font(.headline)
@@ -70,18 +80,25 @@ struct MenuView: View {
 
     private var activeSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(controller.endDate == nil
-                 ? "Your Mac stays awake until you turn it off."
-                 : "Your Mac stays awake until the countdown ends.")
+            Text(activeText)
                 .font(.callout)
             Button {
-                controller.stop()
+                controller.turnOff()
             } label: {
                 Label("Turn Off", systemImage: "stop.fill")
                     .frame(maxWidth: .infinity)
             }
             .controlSize(.large)
         }
+    }
+
+    private var activeText: String {
+        guard controller.isActive else {
+            return "Kept awake by \(controller.holds.holds.map(\.name).joined(separator: ", "))."
+        }
+        return controller.endDate == nil
+            ? "Your Mac stays awake until you turn it off."
+            : "Your Mac stays awake until the countdown ends."
     }
 
     private var durationSection: some View {
@@ -144,6 +161,81 @@ struct MenuView: View {
             Text(controller.batteryText)
                 .font(.caption)
                 .foregroundStyle(.secondary)
+        }
+    }
+
+    private var agentsSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Toggle("Let AI agents keep your Mac awake", isOn: $controller.agentControlEnabled)
+
+            ForEach(controller.holds.holds) { hold in
+                HStack(spacing: 6) {
+                    Text("\(hold.name) · until \(hold.expires.formatted(date: .omitted, time: .shortened))")
+                        .font(.caption)
+                        .monospacedDigit()
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                    Spacer(minLength: 0)
+                    Button {
+                        controller.release(holdID: hold.id)
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.secondary)
+                    .help("Let \(hold.name) stop keeping the Mac awake")
+                    .accessibilityLabel("Release \(hold.name)")
+                }
+            }
+
+            // The sandboxed build can't write the agents' config files.
+            if controller.agentControlEnabled && !AgentInstaller.isSandboxed {
+                HStack(spacing: 6) {
+                    Text("Connect:").font(.caption).foregroundStyle(.secondary)
+                    ForEach(AgentTarget.allCases, id: \.self) { target in
+                        Button {
+                            connect(target)
+                        } label: {
+                            if connecting == target {
+                                ProgressView().controlSize(.mini)
+                            } else if installer.isInstalled(target) {
+                                Label(target.displayName, systemImage: "checkmark")
+                            } else {
+                                Text(target.displayName)
+                            }
+                        }
+                        .disabled(connecting != nil)
+                        .help(installer.isInstalled(target)
+                              ? "Connected. Click to set up \(target.displayName) again."
+                              : "Add keepAwake's hooks and MCP server to \(target.displayName).")
+                    }
+                }
+                .controlSize(.small)
+
+                Text(connectMessage ?? "Agents hold the Mac awake while they work, and let it sleep when they finish.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .textSelection(.enabled)
+            }
+        }
+    }
+
+    private func connect(_ target: AgentTarget) {
+        connecting = target
+        connectMessage = nil
+        let installer = installer
+        Task {
+            // `claude mcp add` can take a moment; keep the menu responsive.
+            let result = await Task.detached { Result { try installer.install(target) } }.value
+            switch result {
+            case .success(let lines):
+                let manual = lines.first { $0.hasPrefix("Run this yourself") }
+                connectMessage = manual ?? "Connected \(target.displayName). New sessions use it."
+            case .failure(let error):
+                connectMessage = error.localizedDescription
+            }
+            connecting = nil
         }
     }
 
