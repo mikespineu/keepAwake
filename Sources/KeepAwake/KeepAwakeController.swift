@@ -1,4 +1,4 @@
-import Foundation
+import AppKit
 import Observation
 import ServiceManagement
 import UserNotifications
@@ -14,6 +14,10 @@ final class KeepAwakeController {
         static let customDays = "customDays"
         static let customHours = "customHours"
         static let customMinutes = "customMinutes"
+        static let keepAwakeWithLidClosed = "keepAwakeWithLidClosed"
+        /// True while `pmset disablesleep` is on because of us. Persisted, so a
+        /// crash or reboot can be cleaned up on the next launch.
+        static let lidOverrideOwned = "lidOverrideOwned"
     }
 
     /// Longest custom duration: exactly this many days.
@@ -25,6 +29,9 @@ final class KeepAwakeController {
     private(set) var now = Date()
     private(set) var lastStopReason: String?
     private(set) var launchAtLogin = SMAppService.mainApp.status == .enabled
+    private(set) var keepAwakeWithLidClosed: Bool
+    /// Problem with the lid-closed mode, shown under its toggle.
+    private(set) var lidMessage: String?
 
     var batteryLimitEnabled: Bool {
         didSet {
@@ -69,11 +76,20 @@ final class KeepAwakeController {
     let battery = BatteryMonitor()
 
     @ObservationIgnored private let assertion = SleepAssertion()
+    @ObservationIgnored private let lid: LidSleepOverride
     @ObservationIgnored private var ticker: Timer?
+    @ObservationIgnored private var terminationObserver: NSObjectProtocol?
     @ObservationIgnored private let defaults: UserDefaults
+    @ObservationIgnored private let playTimeUpSound: () -> Void
 
-    init(defaults: UserDefaults = .standard) {
+    init(
+        defaults: UserDefaults = .standard,
+        lid: LidSleepOverride = LidSleepOverride(),
+        playTimeUpSound: @escaping () -> Void = { NSSound(named: "Glass")?.play() }
+    ) {
         self.defaults = defaults
+        self.lid = lid
+        self.playTimeUpSound = playTimeUpSound
         defaults.register(defaults: [
             Key.batteryLimitEnabled: true,
             Key.batteryThreshold: 10,
@@ -81,6 +97,7 @@ final class KeepAwakeController {
             Key.customDays: 0,
             Key.customHours: 1,
             Key.customMinutes: 0,
+            Key.keepAwakeWithLidClosed: false,
         ])
         batteryLimitEnabled = defaults.bool(forKey: Key.batteryLimitEnabled)
         batteryThreshold = defaults.integer(forKey: Key.batteryThreshold)
@@ -88,8 +105,17 @@ final class KeepAwakeController {
         customDays = min(defaults.integer(forKey: Key.customDays), Self.maxCustomDays)
         customHours = defaults.integer(forKey: Key.customHours)
         customMinutes = defaults.integer(forKey: Key.customMinutes)
+        keepAwakeWithLidClosed = defaults.bool(forKey: Key.keepAwakeWithLidClosed)
 
         battery.onChange = { [weak self] in self?.enforceBatteryLimit() }
+
+        // Left on by a crash or reboot: the Mac would never sleep with the lid closed.
+        releaseLidOverride()
+        terminationObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.willTerminateNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.stop() }
+        }
     }
 
     // MARK: - Activation
@@ -97,6 +123,7 @@ final class KeepAwakeController {
     /// Starts keeping the Mac awake. `minutes == nil` means no time limit.
     func start(minutes: Int?) {
         lastStopReason = nil
+        lidMessage = nil
 
         if let reason = batteryLimitViolation() {
             lastStopReason = "Not started: \(reason)"
@@ -111,6 +138,8 @@ final class KeepAwakeController {
         endDate = minutes.map { now.addingTimeInterval(TimeInterval($0 * 60)) }
         isActive = true
         startTicker()
+        // Without the helper keepAwake still runs, just not with the lid closed.
+        if keepAwakeWithLidClosed { applyLidOverride() }
     }
 
     func startCustom() {
@@ -121,6 +150,7 @@ final class KeepAwakeController {
 
     func stop(reason: String? = nil) {
         assertion.release()
+        releaseLidOverride()
         ticker?.invalidate()
         ticker = nil
         isActive = false
@@ -144,9 +174,11 @@ final class KeepAwakeController {
         ticker = timer
     }
 
-    private func tick() {
-        now = Date()
+    func tick(at date: Date = Date()) {
+        now = date
         if let endDate, now >= endDate {
+            // Played directly, so it works even with notifications turned off.
+            playTimeUpSound()
             stop(reason: "time is up.")
         }
     }
@@ -208,6 +240,48 @@ final class KeepAwakeController {
         guard let percent = state.percent else { return "No battery" }
         let source = state.isOnBattery ? "on battery" : (state.isCharging ? "charging" : "power adapter")
         return "Battery \(percent)% · \(source)"
+    }
+
+    // MARK: - Lid closed
+
+    /// False in the sandboxed build, where the toggle is hidden.
+    var lidModeAvailable: Bool { lid.isAvailable }
+
+    var lidHelperInstalled: Bool { lid.isInstalled }
+
+    /// Turning it on the first time installs the helper, which asks for an admin password.
+    func setKeepAwakeWithLidClosed(_ enabled: Bool) async {
+        lidMessage = nil
+        if enabled && !lid.isInstalled {
+            guard await lid.install() else {
+                lidMessage = "Lid-closed mode needs your admin password."
+                return
+            }
+        }
+        keepAwakeWithLidClosed = enabled
+        defaults.set(enabled, forKey: Key.keepAwakeWithLidClosed)
+        guard isActive else { return }
+        if enabled {
+            applyLidOverride()
+        } else {
+            releaseLidOverride()
+        }
+    }
+
+    private func applyLidOverride() {
+        if lid.enable() {
+            defaults.set(true, forKey: Key.lidOverrideOwned)
+            lidMessage = nil
+        } else {
+            lidMessage = "Lid-closed mode is unavailable: the helper is not installed."
+        }
+    }
+
+    /// Only undoes an override we set ourselves, never one the user set with pmset.
+    private func releaseLidOverride() {
+        guard defaults.bool(forKey: Key.lidOverrideOwned) else { return }
+        lid.disable()
+        defaults.set(false, forKey: Key.lidOverrideOwned)
     }
 
     // MARK: - Launch at login

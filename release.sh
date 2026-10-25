@@ -12,6 +12,14 @@ VERSION="$(sed -n 's/^ *MARKETING_VERSION: *//p' project.yml)"
 TAG="v$VERSION"
 ZIP="build/keepAwake.zip"
 SITE="https://mikespineu.github.io/keepAwake/"
+CHANGELOG_URL="https://github.com/mikespineu/keepAwake/blob/main/CHANGELOG.md"
+
+# The release notes start with this version's section of CHANGELOG.md ("## <version> — <date>").
+CHANGES="$(awk -v v="$VERSION" '/^## /{p = ($2 == v); next} p' CHANGELOG.md | sed '/./,$!d')"
+if [[ -z "$CHANGES" ]]; then
+    echo "CHANGELOG.md has no \"## $VERSION\" section: add one before releasing." >&2
+    exit 1
+fi
 
 ./build.sh --universal
 
@@ -21,6 +29,7 @@ ditto -c -k --sequesterRsrc --keepParent build/keepAwake.app "$ZIP"
 echo "Packed $ZIP ($(du -h "$ZIP" | cut -f1), sha256 $(shasum -a 256 "$ZIP" | cut -d' ' -f1))"
 
 if [[ "${1:-}" == "--dry-run" ]]; then
+    printf 'Release notes start with:\n%s\n' "$CHANGES"
     exit 0
 fi
 
@@ -41,6 +50,12 @@ gh release create "$TAG" "$ZIP" \
     --target "$(git rev-parse HEAD)" \
     --title "keepAwake $VERSION" \
     --notes "$(cat <<EOF
+$CHANGES
+
+Full changelog: $CHANGELOG_URL
+
+---
+
 Universal build for Apple Silicon and Intel Macs, macOS 14 or newer.
 
 **Install**

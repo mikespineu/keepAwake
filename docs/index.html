@@ -126,6 +126,19 @@
     .mock-title { font-weight: 700; margin-bottom: 8px; color: var(--text); }
     .mock-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--text); }
     .mock-btn { background: var(--surface); border: 1px solid var(--line); border-radius: 7px; padding: 3px 12px; font-weight: 600; box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.45); white-space: nowrap; }
+    .news {
+      display: inline-flex; align-items: center; gap: 8px; margin: 22px 0 0;
+      background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+      padding: 5px 14px 5px 6px; font-size: 14px; color: var(--text); text-decoration: none;
+    }
+    .news:hover { border-color: var(--accent); }
+    .tag { background: var(--accent); color: var(--accent-text); border-radius: 999px; padding: 1px 9px; font-size: 12px; font-weight: 700; }
+    .release { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; }
+    .release-head { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 14px; }
+    .release ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); }
+    .release li { margin: 8px 0; }
+    .release li b { color: var(--text); }
+    .release-links { margin: 14px 0 0; font-size: 15px; font-weight: 600; }
     .heads-up { color: var(--muted); font-size: 14px; margin-top: 6px; }
     .heads-up a { color: inherit; }
     details { margin-top: 10px; }
@@ -148,6 +161,7 @@
   <header class="hero">
     <div class="wrap">
       <img class="icon" src="icon.png" alt="keepAwake app icon" width="148" height="148">
+      <div><a class="news" href="#whats-new"><span class="tag">New in 1.1.0</span> Works with the lid closed →</a></div>
       <h1><span class="prompt mono">&gt;_</span> keepAwake</h1>
       <p class="lead">A tiny menu bar app that keeps your Mac from going to sleep — for a set time, forever, or until the battery runs low.</p>
       <a class="download" id="download" href="https://github.com/mikespineu/keepAwake/releases/latest/download/keepAwake.zip">
@@ -180,14 +194,28 @@
       </div>
     </section>
 
+    <section aria-labelledby="whats-new">
+      <h2 id="whats-new">What's new in 1.1.0</h2>
+      <div class="release">
+        <div class="release-head"><span class="tag">1.1.0</span> October 25, 2026</div>
+        <ul>
+          <li><b>Keep awake with the lid closed.</b> A new switch in the menu keeps your Mac running with the lid shut, even without an external display. The first time you turn it on, macOS asks for your admin password once.</li>
+          <li><b>Safe when things go wrong.</b> The lid setting is undone when you turn keepAwake off, when the time or battery limit runs out, when you quit, if the app crashes, and after a restart. If the lid is closed when keepAwake stops, your Mac goes to sleep.</li>
+          <li><b>A sound when the time is up</b>, even with notifications turned off.</li>
+        </ul>
+        <div class="note"><b>Updating from 1.0.0?</b> Your settings start fresh once, so set your battery limit and options again.</div>
+        <p class="release-links"><a href="https://github.com/mikespineu/keepAwake/blob/main/CHANGELOG.md">Full changelog</a> · <a href="https://github.com/mikespineu/keepAwake/releases">All releases</a></p>
+      </div>
+    </section>
+
     <section aria-labelledby="features">
       <h2 id="features">What it does</h2>
       <div class="features">
         <div class="card"><div class="glyph">15m · 2h · 30d · ∞</div><h3>Any duration</h3><p>Presets, a custom time of up to 30 days, or Always. Chosen each time you turn it on.</p></div>
         <div class="card"><div class="glyph">&lt; 10%</div><h3>Battery guard</h3><p>Turns itself off when the battery drops below your limit, so a forgotten timer never drains your laptop.</p></div>
-        <div class="card"><div class="glyph">1:29</div><h3>Countdown</h3><p>Remaining time in the menu bar, plus a notification when keepAwake stops on its own.</p></div>
-        <div class="card"><div class="glyph">▢ on</div><h3>Keep display on</h3><p>Optionally stop the screen from dimming and sleeping too.</p></div>
-        <div class="card"><div class="glyph">⏻ login</div><h3>Launch at login</h3><p>Off by default; one switch if you want it always there.</p></div>
+        <div class="card"><div class="glyph">1:29</div><h3>Countdown</h3><p>Remaining time in the menu bar, a sound when the time is up, and a notification when keepAwake stops on its own.</p></div>
+        <div class="card"><div class="glyph">▢ on · ⏻ login</div><h3>Display &amp; login</h3><p>Optionally keep the screen on too, and start keepAwake when you log in.</p></div>
+        <div class="card"><div class="glyph">lid ⌄ awake</div><h3>Lid closed</h3><p>Optionally keep running with the lid shut, even without an external display. Asks for your admin password once. Don't leave it running in a bag — it can overheat.</p></div>
         <div class="card"><div class="glyph">0 bytes sent</div><h3>Private</h3><p>No Dock icon, no accounts, no tracking, no internet access. <a href="https://github.com/mikespineu/keepAwake/blob/main/PRIVACY.md">Privacy policy</a>.</p></div>
       </div>
     </section>
@@ -253,8 +281,8 @@
     <section aria-labelledby="more">
       <h2 id="more">Update &amp; uninstall</h2>
       <div class="features">
-        <div class="card"><h3>Update</h3><p>Quit keepAwake from its menu, download the new version, and replace the app in Applications.</p></div>
-        <div class="card"><h3>Uninstall</h3><p>Quit keepAwake and move it from Applications to the Bin. Settings live in <code>~/Library/Containers/com.michalkrecisz.keepAwake</code>.</p></div>
+        <div class="card"><h3>Update</h3><p>Quit keepAwake from its menu, download the new version, and replace the app in Applications. See what changed in the <a href="https://github.com/mikespineu/keepAwake/blob/main/CHANGELOG.md">changelog</a>.</p></div>
+        <div class="card"><h3>Uninstall</h3><p>Quit keepAwake and move it from Applications to the Bin. Settings live in <code>~/Library/Preferences/com.michalkrecisz.keepAwake.plist</code>. If you used <em>Keep awake with lid closed</em>, also run <code>sudo rm -f /etc/sudoers.d/keepawake</code> in Terminal.</p></div>
         <div class="card"><h3>Build it yourself</h3><p>Needs only the Xcode Command Line Tools. See the <a href="https://github.com/mikespineu/keepAwake#build-and-install">README</a>.</p></div>
       </div>
     </section>
@@ -263,7 +291,7 @@
   <footer>
     <div class="wrap">
       <span>© 2026 Michał Kręcisz · MIT License</span>
-      <span><a href="https://github.com/mikespineu/keepAwake">GitHub</a> · <a href="https://github.com/mikespineu/keepAwake/releases">All releases</a> · <a href="https://github.com/mikespineu/keepAwake/issues">Report an issue</a></span>
+      <span><a href="https://github.com/mikespineu/keepAwake">GitHub</a> · <a href="https://github.com/mikespineu/keepAwake/blob/main/CHANGELOG.md">Changelog</a> · <a href="https://github.com/mikespineu/keepAwake/releases">All releases</a> · <a href="https://github.com/mikespineu/keepAwake/issues">Report an issue</a></span>
     </div>
   </footer>
 

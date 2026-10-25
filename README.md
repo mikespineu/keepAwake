@@ -2,7 +2,7 @@
 
 A tiny macOS menu bar app that keeps your Mac from going to sleep — for a set time, forever, or until the battery runs low.
 
-**[⬇ Download for Mac](https://github.com/mikespineu/keepAwake/releases/latest/download/keepAwake.zip)** (macOS 14+, Apple Silicon & Intel) · [Website with install guide](https://mikespineu.github.io/keepAwake/)
+**[⬇ Download for Mac](https://github.com/mikespineu/keepAwake/releases/latest/download/keepAwake.zip)** (macOS 14+, Apple Silicon & Intel) · [Website with install guide](https://mikespineu.github.io/keepAwake/) · [What's new](CHANGELOG.md)
 
 Unzip, drag `keepAwake.app` to Applications and open it. The first launch needs one permission step, see [First launch](#first-launch-allow-keepawake-in-privacy--security).
 
@@ -59,9 +59,10 @@ Apps you build yourself with `./build.sh` are not quarantined and open without t
 - **Countdown in the menu bar** next to the mug icon.
 - **Battery guard:** turns itself off when the battery drops below X% (on by default at 10%; only applies while running on battery).
 - **Keep display on** (optional) — prevents the screen from dimming/sleeping too.
+- **Keep awake with lid closed** (optional) — the Mac keeps running with the lid shut, even without an external display. Turning it on the first time asks for your admin password to install a one-line sudoers rule that only allows `pmset -a disablesleep 1` and `pmset -a disablesleep 0`.
 - **Launch at login** (optional).
-- System notification when keepAwake stops by itself.
-- No Dock icon, no background daemons, no root privileges.
+- System notification when keepAwake stops by itself, and a sound when the time is up.
+- No Dock icon, no background daemons. Root is used only by the optional lid-closed mode.
 
 ## Requirements
 
@@ -137,12 +138,21 @@ pmset -g assertions | grep keepAwake
 | Battery level | IOKit `IOPSCopyPowerSourcesInfo` + power-source change notifications (no polling) |
 | Settings | `UserDefaults` |
 | Launch at login | `SMAppService.mainApp` |
+| Lid closed | `sudo -n pmset -a disablesleep 1` / `0`, allowed by `/etc/sudoers.d/keepawake` (installed via `osascript … with administrator privileges`, checked with `visudo`) |
 
 The assertion is released when you turn keepAwake off, when the timer or battery rule fires, or when the app quits.
 
+The lid-closed override is a system setting that outlives the app, so it is undone in every exit path: on stop and quit, by a small watchdog process if the app crashes or is force-quit (within ~5 seconds), and on the next launch after a reboot. If the lid is closed when keepAwake stops, it puts the Mac to sleep (`pmset sleepnow`). An override you set yourself with `pmset` is never touched.
+
+Check whether the override is on (`SleepDisabled 1`) or off (`SleepDisabled 0`, or no line at all):
+
+```bash
+pmset -g | grep SleepDisabled
+```
+
 ## Limitations
 
-- Closing the lid without an external display still puts the Mac to sleep — macOS doesn't allow blocking that without root privileges.
+- A Mac kept awake with the lid closed in a bag can overheat. The battery guard still applies.
 - `build.sh` builds only for the architecture of the Mac you build on. A universal (arm64 + x86_64) binary requires full Xcode.
 
 ## Uninstall
@@ -154,11 +164,22 @@ rm -rf /Applications/keepAwake.app
 defaults delete com.michalkrecisz.keepAwake
 ```
 
+If you used *Keep awake with lid closed*, also remove the sudoers rule:
+
+```bash
+sudo pmset -a disablesleep 0
+```
+
+```bash
+sudo rm -f /etc/sudoers.d/keepawake
+```
+
 ## Publishing a release
 
 1. Bump `MARKETING_VERSION` (and `CURRENT_PROJECT_VERSION`) in `project.yml`.
-2. Commit and push.
-3. Run the release script:
+2. Add a `## <version> — <date>` section to [CHANGELOG.md](CHANGELOG.md) and update *What's new* in `docs/index.html`. The release notes start with that changelog section; the script stops if it is missing.
+3. Commit and push.
+4. Run the release script:
 
    ```bash
    ./release.sh
@@ -189,7 +210,7 @@ swift scripts/generate-icon.swift
 
 The project is prepared for the Mac App Store: App Sandbox, privacy manifest, icon, and an Xcode project (`keepAwake.xcodeproj`, generated from `project.yml` with [XcodeGen](https://github.com/yonaskolb/XcodeGen)). See [APPSTORE.md](APPSTORE.md) for the submission steps and listing metadata, and [PRIVACY.md](PRIVACY.md) for the privacy policy.
 
-Local builds from `build.sh` are signed with the same sandbox entitlement, so they behave like the store version.
+Builds from `build.sh` (and the release zip) are signed without the App Sandbox, because the lid-closed mode needs `sudo` and `osascript`. In the sandboxed store build that toggle is hidden.
 
 ## License
 
