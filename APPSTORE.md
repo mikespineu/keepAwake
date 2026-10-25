@@ -57,7 +57,7 @@ If that name is taken, use `keepAwake – Stay Awake` instead.
 **Description:**
 > keepAwake is a tiny menu bar app that stops your Mac from going to sleep — exactly as long as you need.
 >
-> • Choose a duration every time: 15 min, 30 min, 1 h, 2 h, 4 h, a custom time, or Always.
+> • Choose a duration every time: 15 min, 30 min, 1 h, 2 h, 4 h, a custom time of up to 30 days, or Always.
 > • See the remaining time right in the menu bar.
 > • Battery guard: keepAwake turns itself off when your battery drops below the level you choose (10% by default), so a forgotten timer never drains your laptop.
 > • Optionally keep the display on too.

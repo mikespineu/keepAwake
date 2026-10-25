@@ -99,16 +99,21 @@ struct MenuView: View {
             }
 
             HStack(spacing: 8) {
-                Stepper(value: $controller.customHours, in: 0...23) {
+                Stepper(value: $controller.customDays, in: 0...KeepAwakeController.maxCustomDays) {
+                    Text("\(controller.customDays) d").monospacedDigit()
+                }
+                // At the maximum number of days hours and minutes stay at 0.
+                let atMaxDays = controller.customDays >= KeepAwakeController.maxCustomDays
+                Stepper(value: $controller.customHours, in: 0...(atMaxDays ? 0 : 23)) {
                     Text("\(controller.customHours) h").monospacedDigit()
                 }
-                Stepper(value: $controller.customMinutes, in: 0...55, step: 5) {
+                Stepper(value: $controller.customMinutes, in: 0...(atMaxDays ? 0 : 55), step: 5) {
                     Text("\(controller.customMinutes) min").monospacedDigit()
                 }
-                Spacer()
+                Spacer(minLength: 0)
                 Button("Start") { controller.startCustom() }
                     .keyboardShortcut(.defaultAction)
-                    .disabled(controller.customHours == 0 && controller.customMinutes == 0)
+                    .disabled(controller.customDays == 0 && controller.customHours == 0 && controller.customMinutes == 0)
             }
         }
     }

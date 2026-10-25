@@ -31,14 +31,30 @@ struct KeepAwakeApp: App {
 struct MenuBarLabel: View {
     let controller: KeepAwakeController
 
+    // MenuBarExtra keeps only a plain Image and Text from its label and drops their
+    // modifiers (font, spacing), so the label is drawn into one template image instead.
     var body: some View {
-        HStack(spacing: 4) {
+        Image(nsImage: image)
+            .accessibilityLabel(controller.menuBarText.map { "keepAwake, \($0) left" } ?? "keepAwake")
+    }
+
+    private var content: some View {
+        HStack(spacing: 5) {
             Image(nsImage: .mug(active: controller.isActive))
-                .accessibilityLabel("keepAwake")
             if let text = controller.menuBarText {
-                Text(text).monospacedDigit()
+                // Monospaced so the item does not change width as the countdown ticks.
+                Text(text).font(.system(size: NSFont.menuBarFont(ofSize: 0).pointSize, design: .monospaced))
             }
         }
+        .foregroundStyle(.black)
+    }
+
+    private var image: NSImage {
+        let renderer = ImageRenderer(content: content)
+        renderer.scale = 2
+        let image = renderer.nsImage ?? NSImage()
+        image.isTemplate = true
+        return image
     }
 }
 

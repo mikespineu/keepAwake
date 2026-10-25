@@ -100,10 +100,11 @@ struct MugGlyph: View {
     }
 }
 
-// Menu bar template image: black on transparent, cropped to the glyph, 18 pt tall.
+// Menu bar template image: black on transparent, cropped to the glyph, 16 pt tall
+// like the other menu bar icons.
 // The line is heavier than in the icon so it reads as ~1.75 pt in the menu bar.
-let menuBarLineWidth: CGFloat = 48
-let menuBarHeight = 18
+let menuBarLineWidth: CGFloat = 54
+let menuBarHeight = 16
 
 struct MenuBarIconView: View {
     var filled: Bool

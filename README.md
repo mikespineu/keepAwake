@@ -25,7 +25,7 @@ A tiny macOS menu bar app that keeps your Mac from going to sleep — for a set 
 
 ## Features
 
-- **Pick a duration every time you turn it on:** 15 min, 30 min, 1 h, 2 h, 4 h, a custom hours + minutes value, or **Always**.
+- **Pick a duration every time you turn it on:** 15 min, 30 min, 1 h, 2 h, 4 h, a custom days + hours + minutes value (up to 30 days), or **Always**.
 - **Countdown in the menu bar** next to the cup icon.
 - **Battery guard:** turns itself off when the battery drops below X% (on by default at 10%; only applies while running on battery).
 - **Keep display on** (optional) — prevents the screen from dimming/sleeping too.

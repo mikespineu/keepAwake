@@ -11,9 +11,13 @@ final class KeepAwakeController {
         static let batteryLimitEnabled = "batteryLimitEnabled"
         static let batteryThreshold = "batteryThreshold"
         static let preventDisplaySleep = "preventDisplaySleep"
+        static let customDays = "customDays"
         static let customHours = "customHours"
         static let customMinutes = "customMinutes"
     }
+
+    /// Longest custom duration: exactly this many days.
+    static let maxCustomDays = 30
 
     private(set) var isActive = false
     /// nil while active means "always on".
@@ -43,6 +47,17 @@ final class KeepAwakeController {
         }
     }
 
+    var customDays: Int {
+        didSet {
+            defaults.set(customDays, forKey: Key.customDays)
+            // Cap the custom duration at exactly `maxCustomDays`.
+            if customDays >= Self.maxCustomDays {
+                customHours = 0
+                customMinutes = 0
+            }
+        }
+    }
+
     var customHours: Int {
         didSet { defaults.set(customHours, forKey: Key.customHours) }
     }
@@ -63,12 +78,14 @@ final class KeepAwakeController {
             Key.batteryLimitEnabled: true,
             Key.batteryThreshold: 10,
             Key.preventDisplaySleep: false,
+            Key.customDays: 0,
             Key.customHours: 1,
             Key.customMinutes: 0,
         ])
         batteryLimitEnabled = defaults.bool(forKey: Key.batteryLimitEnabled)
         batteryThreshold = defaults.integer(forKey: Key.batteryThreshold)
         preventDisplaySleep = defaults.bool(forKey: Key.preventDisplaySleep)
+        customDays = min(defaults.integer(forKey: Key.customDays), Self.maxCustomDays)
         customHours = defaults.integer(forKey: Key.customHours)
         customMinutes = defaults.integer(forKey: Key.customMinutes)
 
@@ -97,7 +114,7 @@ final class KeepAwakeController {
     }
 
     func startCustom() {
-        let total = customHours * 60 + customMinutes
+        let total = min(customDays * 24 * 60 + customHours * 60 + customMinutes, Self.maxCustomDays * 24 * 60)
         guard total > 0 else { return }
         start(minutes: total)
     }
@@ -155,13 +172,17 @@ final class KeepAwakeController {
         return max(0, endDate.timeIntervalSince(now))
     }
 
-    /// Compact text for the menu bar, e.g. "1:05" (h:mm) or "12:30" (mm:ss).
+    /// Compact text for the menu bar, e.g. "3d 4h", "1:05" (h:mm) or "12:30" (mm:ss).
     var menuBarText: String? {
         guard let remaining else { return nil }
         let total = Int(remaining.rounded(.up))
-        let hours = total / 3600
+        let days = total / 86_400
+        let hours = (total % 86_400) / 3600
         let minutes = (total % 3600) / 60
         let seconds = total % 60
+        if days > 0 {
+            return "\(days)d \(hours)h"
+        }
         if hours > 0 {
             return String(format: "%d:%02d", hours, minutes)
         }
@@ -172,8 +193,14 @@ final class KeepAwakeController {
         guard isActive else { return "Inactive" }
         guard let remaining, let endDate else { return "Active · always" }
         let total = Int(remaining.rounded(.up))
-        let countdown = String(format: "%d:%02d:%02d", total / 3600, (total % 3600) / 60, total % 60)
-        return "Active · \(countdown) (until \(endDate.formatted(date: .omitted, time: .shortened)))"
+        let days = total / 86_400
+        var countdown = String(format: "%d:%02d:%02d", (total % 86_400) / 3600, (total % 3600) / 60, total % 60)
+        if days > 0 { countdown = "\(days)d " + countdown }
+        // Show the date too once the end is not today.
+        let until = Calendar.current.isDateInToday(endDate)
+            ? endDate.formatted(date: .omitted, time: .shortened)
+            : endDate.formatted(.dateTime.day().month(.abbreviated).hour().minute())
+        return "Active · \(countdown) (until \(until))"
     }
 
     var batteryText: String {
