@@ -131,20 +131,25 @@ enum AgentCLI {
             out((try? encoder.encode(status)).map { String(decoding: $0, as: UTF8.self) } ?? "{}")
             return ok
         }
-        out("Awake: \(status.awake ? "yes" : "no")")
-        if status.manualAlways {
-            out("Manual: until you turn it off")
-        } else if let end = status.manualEndsAt {
-            out("Manual: until \(time(end))")
-        }
-        for hold in status.holds {
-            out("Hold: \(hold.name) until \(time(hold.expires)) (\(hold.id))")
-        }
-        out("Agent control: \(status.agentControlEnabled ? "on" : "off")")
+        statusLines(status).forEach(out)
         return ok
     }
 
-    private static func time(_ date: Date) -> String {
+    static func statusLines(_ status: AgentStatus) -> [String] {
+        var lines = ["Awake: \(status.awake ? "yes" : "no")"]
+        if status.manualAlways {
+            lines.append("Manual: until you turn it off")
+        } else if let end = status.manualEndsAt {
+            lines.append("Manual: until \(time(end))")
+        }
+        for hold in status.holds {
+            lines.append("Hold: \(hold.name) until \(time(hold.expires)) (\(hold.id))")
+        }
+        lines.append("Agent control: \(status.agentControlEnabled ? "on" : "off")")
+        return lines
+    }
+
+    static func time(_ date: Date) -> String {
         date.formatted(date: .omitted, time: .shortened)
     }
 }

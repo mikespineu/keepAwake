@@ -20,6 +20,11 @@ enum Entry {
         if args.first == "hook" {
             exit(AgentHook.run(args: args, stdin: .standardInput, client: AgentClient(), out: { print($0) }))
         }
+        // MCP stdio server for Claude Code, Cursor and other MCP clients.
+        if args.first == "mcp" {
+            MCPServer(client: AgentClient()).run()
+            exit(0)
+        }
         KeepAwakeApp.main()
     }
 
