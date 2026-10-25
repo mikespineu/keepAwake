@@ -18,10 +18,11 @@ final class KeepAwakeController {
         /// True while `pmset disablesleep` is on because of us. Persisted, so a
         /// crash or reboot can be cleaned up on the next launch.
         static let lidOverrideOwned = "lidOverrideOwned"
+        static let agentControlEnabled = "agentControlEnabled"
     }
 
     /// Longest custom duration: exactly this many days.
-    static let maxCustomDays = 30
+    nonisolated static let maxCustomDays = 30
 
     private(set) var isActive = false
     /// nil while active means "always on".
@@ -32,6 +33,20 @@ final class KeepAwakeController {
     private(set) var keepAwakeWithLidClosed: Bool
     /// Problem with the lid-closed mode, shown under its toggle.
     private(set) var lidMessage: String?
+    /// Agents keeping the Mac awake, independent of the manual timer.
+    private(set) var holds = HoldBook()
+
+    /// True while the manual timer runs or any agent holds the Mac awake.
+    var isAwake: Bool { isActive || !holds.isEmpty }
+
+    /// Off: commands from agents and URLs are ignored and existing holds end.
+    var agentControlEnabled: Bool {
+        didSet {
+            defaults.set(agentControlEnabled, forKey: Key.agentControlEnabled)
+            if !agentControlEnabled { holds.removeAll() }
+            syncAwakeState()
+        }
+    }
 
     var batteryLimitEnabled: Bool {
         didSet {
@@ -50,7 +65,7 @@ final class KeepAwakeController {
     var preventDisplaySleep: Bool {
         didSet {
             defaults.set(preventDisplaySleep, forKey: Key.preventDisplaySleep)
-            if isActive { assertion.acquire(preventDisplaySleep: preventDisplaySleep) }
+            if isAwake { assertion.acquire(preventDisplaySleep: preventDisplaySleep) }
         }
     }
 
@@ -73,9 +88,11 @@ final class KeepAwakeController {
         didSet { defaults.set(customMinutes, forKey: Key.customMinutes) }
     }
 
-    let battery = BatteryMonitor()
+    let battery: BatteryMonitor
 
     @ObservationIgnored private let assertion = SleepAssertion()
+    @ObservationIgnored private let statusURL: URL?
+    @ObservationIgnored private let isProcessAlive: (Int32) -> Bool
     @ObservationIgnored private let lid: LidSleepOverride
     @ObservationIgnored private var ticker: Timer?
     @ObservationIgnored private var terminationObserver: NSObjectProtocol?
@@ -85,11 +102,18 @@ final class KeepAwakeController {
     init(
         defaults: UserDefaults = .standard,
         lid: LidSleepOverride = LidSleepOverride(),
-        playTimeUpSound: @escaping () -> Void = { NSSound(named: "Glass")?.play() }
+        playTimeUpSound: @escaping () -> Void = { NSSound(named: "Glass")?.play() },
+        battery: BatteryMonitor = BatteryMonitor(),
+        /// Where agents read our state; nil writes nothing (tests, snapshots).
+        statusURL: URL? = nil,
+        isProcessAlive: @escaping (Int32) -> Bool = { kill($0, 0) == 0 || errno == EPERM }
     ) {
         self.defaults = defaults
         self.lid = lid
         self.playTimeUpSound = playTimeUpSound
+        self.battery = battery
+        self.statusURL = statusURL
+        self.isProcessAlive = isProcessAlive
         defaults.register(defaults: [
             Key.batteryLimitEnabled: true,
             Key.batteryThreshold: 10,
@@ -98,6 +122,7 @@ final class KeepAwakeController {
             Key.customHours: 1,
             Key.customMinutes: 0,
             Key.keepAwakeWithLidClosed: false,
+            Key.agentControlEnabled: true,
         ])
         batteryLimitEnabled = defaults.bool(forKey: Key.batteryLimitEnabled)
         batteryThreshold = defaults.integer(forKey: Key.batteryThreshold)
@@ -106,6 +131,7 @@ final class KeepAwakeController {
         customHours = defaults.integer(forKey: Key.customHours)
         customMinutes = defaults.integer(forKey: Key.customMinutes)
         keepAwakeWithLidClosed = defaults.bool(forKey: Key.keepAwakeWithLidClosed)
+        agentControlEnabled = defaults.bool(forKey: Key.agentControlEnabled)
 
         battery.onChange = { [weak self] in self?.enforceBatteryLimit() }
 
@@ -114,8 +140,9 @@ final class KeepAwakeController {
         terminationObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.willTerminateNotification, object: nil, queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated { self?.stop() }
+            MainActor.assumeIsolated { self?.prepareForQuit() }
         }
+        writeStatus()
     }
 
     // MARK: - Activation
@@ -129,7 +156,7 @@ final class KeepAwakeController {
             lastStopReason = "Not started: \(reason)"
             return
         }
-        guard assertion.acquire(preventDisplaySleep: preventDisplaySleep) else {
+        guard holdAwake() else {
             lastStopReason = "The system refused the sleep assertion."
             return
         }
@@ -137,9 +164,7 @@ final class KeepAwakeController {
         now = Date()
         endDate = minutes.map { now.addingTimeInterval(TimeInterval($0 * 60)) }
         isActive = true
-        startTicker()
-        // Without the helper keepAwake still runs, just not with the lid closed.
-        if keepAwakeWithLidClosed { applyLidOverride() }
+        syncAwakeState()
     }
 
     func startCustom() {
@@ -148,23 +173,82 @@ final class KeepAwakeController {
         start(minutes: total)
     }
 
+    /// Ends the manual timer. Agent holds keep the Mac awake until they end too.
     func stop(reason: String? = nil) {
-        assertion.release()
-        releaseLidOverride()
-        ticker?.invalidate()
-        ticker = nil
         isActive = false
         endDate = nil
         lastStopReason = reason.map { "Stopped: \($0)" }
         if let reason { notify(reason) }
+        syncAwakeState()
+    }
+
+    /// Turn Off in the menu: the manual timer and every agent hold end.
+    func turnOff() {
+        holds.removeAll()
+        stop()
+    }
+
+    func prepareForQuit() {
+        turnOff()
+    }
+
+    // MARK: - Agents
+
+    func handle(_ command: AgentCommand) {
+        guard agentControlEnabled else { return }
+        switch command {
+        case .start(let minutes):
+            start(minutes: minutes)
+        case .stop:
+            turnOff()
+        case .hold(let request):
+            if let reason = batteryLimitViolation() {
+                lastStopReason = "Not started: \(reason)"
+                return
+            }
+            guard holdAwake() else {
+                lastStopReason = "The system refused the sleep assertion."
+                return
+            }
+            holds.apply(request, now: Date())
+            syncAwakeState()
+        case .release(let id):
+            release(holdID: id)
+        }
+    }
+
+    func release(holdID: String) {
+        guard holds.release(id: holdID) else { return }
+        syncAwakeState()
     }
 
     // MARK: - Rules
 
-    private func startTicker() {
-        ticker?.invalidate()
-        ticker = nil
-        guard endDate != nil else { return }
+    /// Takes the assertion unless it is already held. False when IOKit refuses it.
+    private func holdAwake() -> Bool {
+        assertion.isHeld || assertion.acquire(preventDisplaySleep: preventDisplaySleep)
+    }
+
+    /// Makes the assertion, lid override, ticker and status file match `isAwake`.
+    private func syncAwakeState() {
+        if isAwake {
+            // Without the helper keepAwake still runs, just not with the lid closed.
+            if keepAwakeWithLidClosed && !defaults.bool(forKey: Key.lidOverrideOwned) { applyLidOverride() }
+        } else {
+            assertion.release()
+            releaseLidOverride()
+        }
+        updateTicker()
+        writeStatus()
+    }
+
+    private func updateTicker() {
+        guard endDate != nil || !holds.isEmpty else {
+            ticker?.invalidate()
+            ticker = nil
+            return
+        }
+        guard ticker == nil else { return }
 
         let timer = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.tick() }
@@ -176,16 +260,34 @@ final class KeepAwakeController {
 
     func tick(at date: Date = Date()) {
         now = date
-        if let endDate, now >= endDate {
+        let ended = holds.prune(now: date, isAlive: isProcessAlive)
+        if isActive, let endDate, now >= endDate {
             // Played directly, so it works even with notifications turned off.
             playTimeUpSound()
             stop(reason: "time is up.")
+        } else if !ended.isEmpty {
+            syncAwakeState()
         }
     }
 
     private func enforceBatteryLimit() {
-        guard isActive, let reason = batteryLimitViolation() else { return }
+        guard isAwake, let reason = batteryLimitViolation() else { return }
+        holds.removeAll()
         stop(reason: reason)
+    }
+
+    private func writeStatus() {
+        guard let statusURL else { return }
+        let status = AgentStatus(
+            awake: isAwake,
+            manualEndsAt: isActive ? endDate : nil,
+            manualAlways: isActive && endDate == nil,
+            holds: holds.holds,
+            agentControlEnabled: agentControlEnabled,
+            appPID: getpid(),
+            updated: Date()
+        )
+        try? StatusFile.write(status, to: statusURL)
     }
 
     /// The battery rule only applies while running on battery power.
@@ -222,7 +324,10 @@ final class KeepAwakeController {
     }
 
     var statusText: String {
-        guard isActive else { return "Inactive" }
+        guard isActive else {
+            guard !holds.isEmpty else { return "Inactive" }
+            return "Active · held by " + holds.holds.map(\.name).joined(separator: ", ")
+        }
         guard let remaining, let endDate else { return "Active · always" }
         let total = Int(remaining.rounded(.up))
         let days = total / 86_400
@@ -260,7 +365,7 @@ final class KeepAwakeController {
         }
         keepAwakeWithLidClosed = enabled
         defaults.set(enabled, forKey: Key.keepAwakeWithLidClosed)
-        guard isActive else { return }
+        guard isAwake else { return }
         if enabled {
             applyLidOverride()
         } else {

@@ -8,27 +8,43 @@
 
 /* Begin PBXBuildFile section */
 		01670DAFE41D74D994CD6BA4 /* KeepAwakeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF99D99E7711DD16F845075 /* KeepAwakeController.swift */; };
+		0359A21B1264460BF1228D75 /* AgentHook.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89223A4FDBBF22A56B56A96A /* AgentHook.swift */; };
 		03EFA9883A11BFC1771D65AE /* KeepAwakeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB2F300CDC06707A2B304D14 /* KeepAwakeApp.swift */; };
+		08B4B330C5BE5F7ADDF07EBA /* AgentClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA37E7D06E60AD0A10BA0A15 /* AgentClient.swift */; };
 		0AA00191CE338C4ECFB6014D /* BatteryMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8016652E9C2897B177C31C3A /* BatteryMonitor.swift */; };
 		304F02F2E11A4F69A1496D40 /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D72A33862B9826D73856B9 /* MenuView.swift */; };
 		466D55E7564B0628F8829B7F /* LidSleepOverride.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDBC24D9F051AC5DEBB16077 /* LidSleepOverride.swift */; };
+		51B0F8C4B5E8F9A855F6196C /* AgentCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D1A29DBAA77493DDBD3DAA3 /* AgentCommand.swift */; };
+		79AD9E566FB3016CE81655C2 /* AgentHolds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09722FA4D2D2E00F4B6CDC36 /* AgentHolds.swift */; };
+		A75FA7028CF8E19AD6707741 /* MCPServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6771281DD934C789E9932E /* MCPServer.swift */; };
 		A7FA5FF26DA947FFC8F71C85 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B59B0834EB4F2881929B3D05 /* Assets.xcassets */; };
+		ADFE47D6C7DC37EE8F8CD185 /* StatusFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E47EA82F5616CA5B5D34227 /* StatusFile.swift */; };
 		AE50799CFA95C76DE0CB33A0 /* SleepAssertion.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB755993FF8B2CA9E9384583 /* SleepAssertion.swift */; };
 		B06E8EFFAF5FA8CFC9B28C3F /* Snapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5578E9368BDBA2197383B4D /* Snapshot.swift */; };
+		C748054592CF044917505180 /* AgentInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F42C85E4B143E65B504D628 /* AgentInstaller.swift */; };
+		C9C33E9CE0A3BD58D94E34F9 /* AgentCLI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA49C7448435FD5B72156108 /* AgentCLI.swift */; };
 		EBDF7250A559D5E72F781A68 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 915AB8CA37685E2F0F1FBE2B /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		09722FA4D2D2E00F4B6CDC36 /* AgentHolds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentHolds.swift; sourceTree = "<group>"; };
+		1A6771281DD934C789E9932E /* MCPServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPServer.swift; sourceTree = "<group>"; };
+		1E47EA82F5616CA5B5D34227 /* StatusFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusFile.swift; sourceTree = "<group>"; };
 		34D72A33862B9826D73856B9 /* MenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
 		4CCB37E44BBDB29E2A4B913C /* keepAwake.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = keepAwake.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F42C85E4B143E65B504D628 /* AgentInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentInstaller.swift; sourceTree = "<group>"; };
+		6D1A29DBAA77493DDBD3DAA3 /* AgentCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentCommand.swift; sourceTree = "<group>"; };
 		8016652E9C2897B177C31C3A /* BatteryMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatteryMonitor.swift; sourceTree = "<group>"; };
+		89223A4FDBBF22A56B56A96A /* AgentHook.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentHook.swift; sourceTree = "<group>"; };
 		915AB8CA37685E2F0F1FBE2B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B59B0834EB4F2881929B3D05 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BA49C7448435FD5B72156108 /* AgentCLI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentCLI.swift; sourceTree = "<group>"; };
 		CB755993FF8B2CA9E9384583 /* SleepAssertion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepAssertion.swift; sourceTree = "<group>"; };
 		CDBC24D9F051AC5DEBB16077 /* LidSleepOverride.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LidSleepOverride.swift; sourceTree = "<group>"; };
 		D5578E9368BDBA2197383B4D /* Snapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Snapshot.swift; sourceTree = "<group>"; };
 		DB2F300CDC06707A2B304D14 /* KeepAwakeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeepAwakeApp.swift; sourceTree = "<group>"; };
 		DCF99D99E7711DD16F845075 /* KeepAwakeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeepAwakeController.swift; sourceTree = "<group>"; };
+		EA37E7D06E60AD0A10BA0A15 /* AgentClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -60,13 +76,21 @@
 		769292F4EA6DE34B87007393 /* KeepAwake */ = {
 			isa = PBXGroup;
 			children = (
+				BA49C7448435FD5B72156108 /* AgentCLI.swift */,
+				EA37E7D06E60AD0A10BA0A15 /* AgentClient.swift */,
+				6D1A29DBAA77493DDBD3DAA3 /* AgentCommand.swift */,
+				09722FA4D2D2E00F4B6CDC36 /* AgentHolds.swift */,
+				89223A4FDBBF22A56B56A96A /* AgentHook.swift */,
+				4F42C85E4B143E65B504D628 /* AgentInstaller.swift */,
 				8016652E9C2897B177C31C3A /* BatteryMonitor.swift */,
 				DB2F300CDC06707A2B304D14 /* KeepAwakeApp.swift */,
 				DCF99D99E7711DD16F845075 /* KeepAwakeController.swift */,
 				CDBC24D9F051AC5DEBB16077 /* LidSleepOverride.swift */,
+				1A6771281DD934C789E9932E /* MCPServer.swift */,
 				34D72A33862B9826D73856B9 /* MenuView.swift */,
 				CB755993FF8B2CA9E9384583 /* SleepAssertion.swift */,
 				D5578E9368BDBA2197383B4D /* Snapshot.swift */,
+				1E47EA82F5616CA5B5D34227 /* StatusFile.swift */,
 			);
 			path = KeepAwake;
 			sourceTree = "<group>";
@@ -152,13 +176,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C9C33E9CE0A3BD58D94E34F9 /* AgentCLI.swift in Sources */,
+				08B4B330C5BE5F7ADDF07EBA /* AgentClient.swift in Sources */,
+				51B0F8C4B5E8F9A855F6196C /* AgentCommand.swift in Sources */,
+				79AD9E566FB3016CE81655C2 /* AgentHolds.swift in Sources */,
+				0359A21B1264460BF1228D75 /* AgentHook.swift in Sources */,
+				C748054592CF044917505180 /* AgentInstaller.swift in Sources */,
 				0AA00191CE338C4ECFB6014D /* BatteryMonitor.swift in Sources */,
 				03EFA9883A11BFC1771D65AE /* KeepAwakeApp.swift in Sources */,
 				01670DAFE41D74D994CD6BA4 /* KeepAwakeController.swift in Sources */,
 				466D55E7564B0628F8829B7F /* LidSleepOverride.swift in Sources */,
+				A75FA7028CF8E19AD6707741 /* MCPServer.swift in Sources */,
 				304F02F2E11A4F69A1496D40 /* MenuView.swift in Sources */,
 				AE50799CFA95C76DE0CB33A0 /* SleepAssertion.swift in Sources */,
 				B06E8EFFAF5FA8CFC9B28C3F /* Snapshot.swift in Sources */,
+				ADFE47D6C7DC37EE8F8CD185 /* StatusFile.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -220,7 +252,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -233,7 +265,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.2.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -278,7 +310,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -297,7 +329,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.2.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;

@@ -161,7 +161,7 @@
   <header class="hero">
     <div class="wrap">
       <img class="icon" src="icon.png" alt="keepAwake app icon" width="148" height="148">
-      <div><a class="news" href="#whats-new"><span class="tag">New in 1.1.0</span> Works with the lid closed →</a></div>
+      <div><a class="news" href="#whats-new"><span class="tag">New in 1.2.0</span> Stays awake while AI agents work →</a></div>
       <h1><span class="prompt mono">&gt;_</span> keepAwake</h1>
       <p class="lead">A tiny menu bar app that keeps your Mac from going to sleep — for a set time, forever, or until the battery runs low.</p>
       <a class="download" id="download" href="https://github.com/mikespineu/keepAwake/releases/latest/download/keepAwake.zip">
@@ -180,22 +180,32 @@
         <figure>
           <picture>
             <source media="(prefers-color-scheme: light)" srcset="menu-inactive-light.png">
-            <img src="menu-inactive-dark.png" alt="keepAwake menu with duration presets and battery settings" width="920" height="944" loading="lazy">
+            <img src="menu-inactive-dark.png" alt="keepAwake menu with duration presets, battery and AI agent settings" width="920" height="1222" loading="lazy">
           </picture>
           <figcaption>Pick how long to stay awake</figcaption>
         </figure>
         <figure>
           <picture>
             <source media="(prefers-color-scheme: light)" srcset="menu-active-light.png">
-            <img src="menu-active-dark.png" alt="keepAwake active with a countdown in the menu bar" width="920" height="846" loading="lazy">
+            <img src="menu-active-dark.png" alt="keepAwake active with a countdown in the menu bar and a Claude Code hold" width="920" height="1166" loading="lazy">
           </picture>
-          <figcaption>Countdown right next to the icon</figcaption>
+          <figcaption>Countdown next to the icon, and who's holding it</figcaption>
         </figure>
       </div>
     </section>
 
     <section aria-labelledby="whats-new">
-      <h2 id="whats-new">What's new in 1.1.0</h2>
+      <h2 id="whats-new">What's new</h2>
+      <div class="release">
+        <div class="release-head"><span class="tag">1.2.0</span> October 25, 2026</div>
+        <ul>
+          <li><b>AI agents can keep your Mac awake while they work.</b> Claude Code, Cursor and other AI coding tools hold keepAwake while they're busy and let the Mac sleep when they finish. The menu shows who is holding it.</li>
+          <li><b>One-click setup.</b> Click <em>Connect: Claude Code</em> or <em>Cursor</em> in the menu. Your other settings in those apps stay as they are. <a href="#agents">How it works</a>.</li>
+          <li><b>You stay in charge.</b> Turn Off ends every hold, the battery guard still applies, and a switch in the menu turns agent control off.</li>
+          <li><b>For scripts too:</b> a <code>keepawake://</code> link format, a command line and an MCP server.</li>
+        </ul>
+        <p class="release-links"><a href="https://github.com/mikespineu/keepAwake/blob/main/CHANGELOG.md">Full changelog</a> · <a href="https://github.com/mikespineu/keepAwake/releases">All releases</a></p>
+      </div>
       <div class="release">
         <div class="release-head"><span class="tag">1.1.0</span> October 25, 2026</div>
         <ul>
@@ -204,7 +214,6 @@
           <li><b>A sound when the time is up</b>, even with notifications turned off.</li>
         </ul>
         <div class="note"><b>Updating from 1.0.0?</b> Your settings start fresh once, so set your battery limit and options again.</div>
-        <p class="release-links"><a href="https://github.com/mikespineu/keepAwake/blob/main/CHANGELOG.md">Full changelog</a> · <a href="https://github.com/mikespineu/keepAwake/releases">All releases</a></p>
       </div>
     </section>
 
@@ -216,8 +225,26 @@
         <div class="card"><div class="glyph">1:29</div><h3>Countdown</h3><p>Remaining time in the menu bar, a sound when the time is up, and a notification when keepAwake stops on its own.</p></div>
         <div class="card"><div class="glyph">▢ on · ⏻ login</div><h3>Display &amp; login</h3><p>Optionally keep the screen on too, and start keepAwake when you log in.</p></div>
         <div class="card"><div class="glyph">lid ⌄ awake</div><h3>Lid closed</h3><p>Optionally keep running with the lid shut, even without an external display. Asks for your admin password once. Don't leave it running in a bag — it can overheat.</p></div>
+        <div class="card"><div class="glyph">&gt;_ agent · hold</div><h3>AI agents</h3><p>Claude Code, Cursor and other MCP tools keep your Mac awake while they work, and let it sleep when they finish. <a href="#agents">Set it up</a>.</p></div>
         <div class="card"><div class="glyph">0 bytes sent</div><h3>Private</h3><p>No Dock icon, no accounts, no tracking, no internet access. <a href="https://github.com/mikespineu/keepAwake/blob/main/PRIVACY.md">Privacy policy</a>.</p></div>
       </div>
+    </section>
+
+    <section aria-labelledby="agents">
+      <h2 id="agents">Use with AI agents</h2>
+      <div class="features">
+        <div class="card"><h3>Connect</h3><p>Open the keepAwake menu and click <span class="path">Connect: Claude Code</span> or <span class="path">Cursor</span>, then start a new agent session. It adds keepAwake's hooks and MCP server to that app's settings, and keeps a backup copy of each file it changes.</p></div>
+        <div class="card"><h3>While the agent works</h3><p>Every prompt and tool call keeps the Mac awake for the next 30 minutes. When the agent finishes, or crashes, the Mac can sleep again. You can also ask the agent to “keep my Mac awake for 3 hours”.</p></div>
+        <div class="card"><h3>You're in charge</h3><p>The menu lists every agent holding the Mac awake. Click × to end one, or <span class="path">Turn Off</span> to end them all. The hooks never read your prompts.</p></div>
+      </div>
+      <details>
+        <summary>Terminal, scripts and other MCP clients</summary>
+        <p>The app is also a command-line tool. It talks to the running app and starts it if needed:</p>
+        <pre><code>/Applications/keepAwake.app/Contents/MacOS/KeepAwake install claude-code
+/Applications/keepAwake.app/Contents/MacOS/KeepAwake hold --id backup --minutes 60
+open -g "keepawake://release?id=backup"</code></pre>
+        <p>Other MCP clients can run <code>KeepAwake mcp</code> as a stdio server. All commands are in the <a href="https://github.com/mikespineu/keepAwake#use-with-ai-agents">README</a>.</p>
+      </details>
     </section>
 
     <section aria-labelledby="install">
@@ -282,7 +309,7 @@
       <h2 id="more">Update &amp; uninstall</h2>
       <div class="features">
         <div class="card"><h3>Update</h3><p>Quit keepAwake from its menu, download the new version, and replace the app in Applications. See what changed in the <a href="https://github.com/mikespineu/keepAwake/blob/main/CHANGELOG.md">changelog</a>.</p></div>
-        <div class="card"><h3>Uninstall</h3><p>Quit keepAwake and move it from Applications to the Bin. Settings live in <code>~/Library/Preferences/com.michalkrecisz.keepAwake.plist</code>. If you used <em>Keep awake with lid closed</em>, also run <code>sudo rm -f /etc/sudoers.d/keepawake</code> in Terminal.</p></div>
+        <div class="card"><h3>Uninstall</h3><p>Quit keepAwake and move it from Applications to the Bin. Settings live in <code>~/Library/Preferences/com.michalkrecisz.keepAwake.plist</code>. If you used <em>Keep awake with lid closed</em>, also run <code>sudo rm -f /etc/sudoers.d/keepawake</code> in Terminal. If you connected an AI agent, first run <code>…/KeepAwake uninstall claude-code</code> or <code>uninstall cursor</code> (see the <a href="https://github.com/mikespineu/keepAwake#uninstall">README</a>).</p></div>
         <div class="card"><h3>Build it yourself</h3><p>Needs only the Xcode Command Line Tools. See the <a href="https://github.com/mikespineu/keepAwake#build-and-install">README</a>.</p></div>
       </div>
     </section>

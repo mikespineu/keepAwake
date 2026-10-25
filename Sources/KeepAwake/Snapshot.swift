@@ -19,7 +19,10 @@ enum Snapshot {
                 // Show the lid toggle as a fresh install sees it, whatever this Mac has installed.
                 let lid = LidSleepOverride(fileExists: { _ in false }, helperScriptPath: "snapshot", isSandboxed: false)
                 let controller = KeepAwakeController(defaults: UserDefaults(suiteName: suiteName)!, lid: lid)
-                if active { controller.start(minutes: 90) }
+                if active {
+                    controller.start(minutes: 90)
+                    controller.handle(.hold(HoldRequest(id: "claude-code:snapshot", name: "Claude Code", minutes: 30, pid: nil)))
+                }
 
                 let state = active ? "active" : "inactive"
                 let file = outputDirectory.appendingPathComponent("menu-\(state)-\(name).png")
@@ -34,7 +37,7 @@ enum Snapshot {
                 if let rep = render(store, appearance: appearance) {
                     write(rep, to: appStoreDirectory.appendingPathComponent("appstore-\(state)-\(name).png"))
                 }
-                controller.stop()
+                controller.turnOff()
             }
         }
         UserDefaults().removePersistentDomain(forName: suiteName)
@@ -96,7 +99,8 @@ private struct SnapshotScene: View {
             .frame(height: 26)
             .background(Color(nsColor: .windowBackgroundColor).opacity(0.85))
 
-            MenuView(controller: controller)
+            // A folder that doesn't exist, so no agent shows as connected.
+            MenuView(controller: controller, installer: AgentInstaller(home: URL(fileURLWithPath: "/nonexistent")))
                 .background(Color(nsColor: .windowBackgroundColor))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(.primary.opacity(0.15)))

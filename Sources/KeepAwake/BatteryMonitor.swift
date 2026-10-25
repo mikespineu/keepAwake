@@ -17,14 +17,17 @@ final class BatteryMonitor {
 
     @ObservationIgnored var onChange: (() -> Void)?
     @ObservationIgnored private var runLoopSource: CFRunLoopSource?
+    @ObservationIgnored private let read: @MainActor () -> BatteryState
 
-    init() {
-        state = Self.read()
+    /// `read` is replaced in tests to fake a battery level.
+    init(read: @escaping @MainActor () -> BatteryState = BatteryMonitor.systemState) {
+        self.read = read
+        state = read()
         startListening()
     }
 
     func refresh() {
-        let newState = Self.read()
+        let newState = read()
         guard newState != state else { return }
         state = newState
         onChange?()
@@ -45,7 +48,7 @@ final class BatteryMonitor {
         runLoopSource = source
     }
 
-    private static func read() -> BatteryState {
+    nonisolated static func systemState() -> BatteryState {
         let fallback = BatteryState(percent: nil, isOnBattery: false, isCharging: false)
         guard
             let info = IOPSCopyPowerSourcesInfo()?.takeRetainedValue(),

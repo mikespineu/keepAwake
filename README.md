@@ -61,6 +61,7 @@ Apps you build yourself with `./build.sh` are not quarantined and open without t
 - **Keep display on** (optional) — prevents the screen from dimming/sleeping too.
 - **Keep awake with lid closed** (optional) — the Mac keeps running with the lid shut, even without an external display. Turning it on the first time asks for your admin password to install a one-line sudoers rule that only allows `pmset -a disablesleep 1` and `pmset -a disablesleep 0`.
 - **Launch at login** (optional).
+- **AI agents can keep the Mac awake while they work:** Claude Code, Cursor and any MCP client, connected with one click. See [Use with AI agents](#use-with-ai-agents).
 - System notification when keepAwake stops by itself, and a sound when the time is up.
 - No Dock icon, no background daemons. Root is used only by the optional lid-closed mode.
 
@@ -129,6 +130,49 @@ Verify that the sleep assertion is active:
 pmset -g assertions | grep keepAwake
 ```
 
+## Use with AI agents
+
+Coding agents can keep your Mac awake while they work and let it sleep when they finish. Each agent gets its own **hold**: the menu lists who is holding the Mac awake, and the × next to a hold ends it. **Turn Off** ends every hold.
+
+### Connect Claude Code or Cursor
+
+Click **Connect: Claude Code** or **Cursor** in the keepAwake menu. Or run it in Terminal:
+
+```bash
+/Applications/keepAwake.app/Contents/MacOS/KeepAwake install claude-code
+```
+
+```bash
+/Applications/keepAwake.app/Contents/MacOS/KeepAwake install cursor
+```
+
+This adds two things, and leaves everything else in those files as it is. The first change to each file saves a copy next to it as `<file>.keepawake-backup`.
+
+- **Hooks** (`~/.claude/settings.json`, `~/.cursor/hooks.json`): every prompt and tool call holds the Mac awake for the next 30 minutes. When the agent finishes its reply or the session ends, the hold ends. If the agent crashes, its hold ends within a second. The hooks read only the event name and the session id from the agent, never your prompts or tool input.
+- **MCP server** (`claude mcp add --scope user keepawake`, `~/.cursor/mcp.json`): lets the agent ask for more time itself, e.g. "keep my Mac awake for 3 hours while the training runs". Tools: `keep_awake` (`minutes` 1–1440, default 60, optional `reason`), `allow_sleep`, `keep_awake_status`.
+
+Start a new agent session after connecting. To undo, run the same command with `uninstall`. Other MCP clients can run `/Applications/keepAwake.app/Contents/MacOS/KeepAwake mcp` as a stdio server.
+
+Turn off **Let AI agents keep your Mac awake** in the menu to ignore agents without uninstalling anything.
+
+### Command line and URL scheme
+
+The app binary is also a small CLI. It talks to the running app, and starts it if needed:
+
+```bash
+/Applications/keepAwake.app/Contents/MacOS/KeepAwake hold --id nightly --name "Nightly build" --minutes 120
+```
+
+| Command | URL | What it does |
+|---|---|---|
+| `hold --id ID [--name N] [--minutes 1-1440] [--pid P]` | `keepawake://hold?id=ID&name=N&minutes=M&pid=P` | Holds the Mac awake (30 min by default). Holding again with the same id renews it. With `pid`, the hold ends when that process exits. |
+| `release --id ID` | `keepawake://release?id=ID` | Ends that hold. |
+| `start [--minutes 1-43200]` | `keepawake://start?minutes=M` | Same as a preset in the menu; no minutes means Always. |
+| `stop` | `keepawake://stop` | Same as Turn Off. |
+| `status [--json]` | | Prints what keepAwake is doing. |
+
+URLs work from anywhere that opens links, for example `open -g "keepawake://hold?id=backup&minutes=60"` or the *Open URLs* action in Shortcuts.
+
 ## How it works
 
 | Piece | Implementation |
@@ -139,8 +183,10 @@ pmset -g assertions | grep keepAwake
 | Settings | `UserDefaults` |
 | Launch at login | `SMAppService.mainApp` |
 | Lid closed | `sudo -n pmset -a disablesleep 1` / `0`, allowed by `/etc/sudoers.d/keepawake` (installed via `osascript … with administrator privileges`, checked with `visudo`) |
+| Agent control | `keepawake://` URLs handled by `NSApplicationDelegate.application(_:open:)`; the app writes its state to `~/Library/Application Support/keepAwake/status.json`, which the CLI, hooks and MCP server read back |
+| MCP server | The same binary run as `KeepAwake mcp`: JSON-RPC over stdio, no dependencies |
 
-The assertion is released when you turn keepAwake off, when the timer or battery rule fires, or when the app quits.
+The assertion is released when you turn keepAwake off, when the timer or battery rule fires, or when the app quits, unless an agent hold is still keeping the Mac awake.
 
 The lid-closed override is a system setting that outlives the app, so it is undone in every exit path: on stop and quit, by a small watchdog process if the app crashes or is force-quit (within ~5 seconds), and on the next launch after a reboot. If the lid is closed when keepAwake stops, it puts the Mac to sleep (`pmset sleepnow`). An override you set yourself with `pmset` is never touched.
 
@@ -157,11 +203,22 @@ pmset -g | grep SleepDisabled
 
 ## Uninstall
 
+If you connected Claude Code or Cursor, remove the hooks and MCP server first:
+
+```bash
+/Applications/keepAwake.app/Contents/MacOS/KeepAwake uninstall claude-code
+```
+
+```bash
+/Applications/keepAwake.app/Contents/MacOS/KeepAwake uninstall cursor
+```
+
 Quit keepAwake from its menu, then:
 
 ```bash
 rm -rf /Applications/keepAwake.app
 defaults delete com.michalkrecisz.keepAwake
+rm -rf ~/Library/Application\ Support/keepAwake
 ```
 
 If you used *Keep awake with lid closed*, also remove the sudoers rule:
