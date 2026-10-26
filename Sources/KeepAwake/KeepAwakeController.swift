@@ -39,6 +39,12 @@ final class KeepAwakeController {
     /// True while the manual timer runs or any agent holds the Mac awake.
     var isAwake: Bool { isActive || !holds.isEmpty }
 
+    /// Set from loginwindow's notifications, whoever locked the screen.
+    private(set) var isScreenLocked = false
+
+    /// The display may sleep behind the lock screen; the Mac itself stays awake.
+    var keepsDisplayOn: Bool { preventDisplaySleep && !isScreenLocked }
+
     /// Off: commands from agents and URLs are ignored and existing holds end.
     var agentControlEnabled: Bool {
         didSet {
@@ -65,7 +71,7 @@ final class KeepAwakeController {
     var preventDisplaySleep: Bool {
         didSet {
             defaults.set(preventDisplaySleep, forKey: Key.preventDisplaySleep)
-            if isAwake { assertion.acquire(preventDisplaySleep: preventDisplaySleep) }
+            if isAwake { assertion.acquire(preventDisplaySleep: keepsDisplayOn) }
         }
     }
 
@@ -96,6 +102,7 @@ final class KeepAwakeController {
     @ObservationIgnored private let lid: LidSleepOverride
     @ObservationIgnored private var ticker: Timer?
     @ObservationIgnored private var terminationObserver: NSObjectProtocol?
+    @ObservationIgnored private var screenLockObservers: [NSObjectProtocol] = []
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let playTimeUpSound: () -> Void
 
@@ -141,6 +148,12 @@ final class KeepAwakeController {
             forName: NSApplication.willTerminateNotification, object: nil, queue: .main
         ) { [weak self] _ in
             MainActor.assumeIsolated { self?.prepareForQuit() }
+        }
+        let center = DistributedNotificationCenter.default()
+        screenLockObservers = [(ScreenLock.lockedNotification, true), (ScreenLock.unlockedNotification, false)].map { name, locked in
+            center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.screenLockChanged(locked: locked) }
+            }
         }
         writeStatus()
     }
@@ -192,6 +205,22 @@ final class KeepAwakeController {
         turnOff()
     }
 
+    // MARK: - Screen lock
+
+    /// False in the sandboxed build, where the button is hidden.
+    var screenLockAvailable: Bool { ScreenLock.isAvailable }
+
+    /// Lock Screen in the menu. keepAwake and agents keep running behind it.
+    func lockScreen() {
+        ScreenLock.lock()
+    }
+
+    func screenLockChanged(locked: Bool) {
+        guard locked != isScreenLocked else { return }
+        isScreenLocked = locked
+        if isAwake && preventDisplaySleep { assertion.acquire(preventDisplaySleep: keepsDisplayOn) }
+    }
+
     // MARK: - Agents
 
     func handle(_ command: AgentCommand) {
@@ -226,7 +255,7 @@ final class KeepAwakeController {
 
     /// Takes the assertion unless it is already held. False when IOKit refuses it.
     private func holdAwake() -> Bool {
-        assertion.isHeld || assertion.acquire(preventDisplaySleep: preventDisplaySleep)
+        assertion.isHeld || assertion.acquire(preventDisplaySleep: keepsDisplayOn)
     }
 
     /// Makes the assertion, lid override, ticker and status file match `isAwake`.
