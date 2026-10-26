@@ -23,11 +23,13 @@
 		B06E8EFFAF5FA8CFC9B28C3F /* Snapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5578E9368BDBA2197383B4D /* Snapshot.swift */; };
 		C748054592CF044917505180 /* AgentInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F42C85E4B143E65B504D628 /* AgentInstaller.swift */; };
 		C9C33E9CE0A3BD58D94E34F9 /* AgentCLI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA49C7448435FD5B72156108 /* AgentCLI.swift */; };
+		E456AEEB3DD771590C5686BE /* ScreenLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A7D78177225C09F05F40C7 /* ScreenLock.swift */; };
 		EBDF7250A559D5E72F781A68 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 915AB8CA37685E2F0F1FBE2B /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		09722FA4D2D2E00F4B6CDC36 /* AgentHolds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentHolds.swift; sourceTree = "<group>"; };
+		09A7D78177225C09F05F40C7 /* ScreenLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenLock.swift; sourceTree = "<group>"; };
 		1A6771281DD934C789E9932E /* MCPServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPServer.swift; sourceTree = "<group>"; };
 		1E47EA82F5616CA5B5D34227 /* StatusFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusFile.swift; sourceTree = "<group>"; };
 		34D72A33862B9826D73856B9 /* MenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
@@ -88,6 +90,7 @@
 				CDBC24D9F051AC5DEBB16077 /* LidSleepOverride.swift */,
 				1A6771281DD934C789E9932E /* MCPServer.swift */,
 				34D72A33862B9826D73856B9 /* MenuView.swift */,
+				09A7D78177225C09F05F40C7 /* ScreenLock.swift */,
 				CB755993FF8B2CA9E9384583 /* SleepAssertion.swift */,
 				D5578E9368BDBA2197383B4D /* Snapshot.swift */,
 				1E47EA82F5616CA5B5D34227 /* StatusFile.swift */,
@@ -188,6 +191,7 @@
 				466D55E7564B0628F8829B7F /* LidSleepOverride.swift in Sources */,
 				A75FA7028CF8E19AD6707741 /* MCPServer.swift in Sources */,
 				304F02F2E11A4F69A1496D40 /* MenuView.swift in Sources */,
+				E456AEEB3DD771590C5686BE /* ScreenLock.swift in Sources */,
 				AE50799CFA95C76DE0CB33A0 /* SleepAssertion.swift in Sources */,
 				B06E8EFFAF5FA8CFC9B28C3F /* Snapshot.swift in Sources */,
 				ADFE47D6C7DC37EE8F8CD185 /* StatusFile.swift in Sources */,
@@ -252,7 +256,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -265,7 +269,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.2.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -310,7 +314,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -329,7 +333,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.2.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;

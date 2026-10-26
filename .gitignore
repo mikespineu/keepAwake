@@ -6,4 +6,5 @@ xcuserdata/
 *.xcworkspace/xcuserdata/
 DerivedData/
 Close
-.claude/
+.claude/*
+!.claude/skills/

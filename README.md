@@ -58,7 +58,8 @@ Apps you build yourself with `./build.sh` are not quarantined and open without t
 - **Pick a duration every time you turn it on:** 15 min, 30 min, 1 h, 2 h, 4 h, a custom days + hours + minutes value (up to 30 days), or **Always**.
 - **Countdown in the menu bar** next to the mug icon.
 - **Battery guard:** turns itself off when the battery drops below X% (on by default at 10%; only applies while running on battery).
-- **Keep display on** (optional) — prevents the screen from dimming/sleeping too.
+- **Keep display on** (optional) — prevents the screen from dimming/sleeping too. While the screen is locked the display may sleep; the Mac stays awake.
+- **Lock Screen** — locks the screen while keepAwake and your agents keep running behind it.
 - **Keep awake with lid closed** (optional) — the Mac keeps running with the lid shut, even without an external display. Turning it on the first time asks for your admin password to install a one-line sudoers rule that only allows `pmset -a disablesleep 1` and `pmset -a disablesleep 0`.
 - **Launch at login** (optional).
 - **AI agents can keep the Mac awake while they work:** Claude Code, Cursor and any MCP client, connected with one click. See [Use with AI agents](#use-with-ai-agents).
@@ -122,7 +123,7 @@ Notifications and *Launch at login* don't work in this mode because the binary i
 1. Click the cup icon in the menu bar.
 2. Choose how long to stay awake — a preset, a custom time (then **Start**), or **Always**.
 3. Optionally set the battery threshold with the slider.
-4. Click **Turn Off** to stop early.
+4. Click **Turn Off** to stop early, or **Lock Screen** to lock the Mac and leave it working.
 
 Verify that the sleep assertion is active:
 
@@ -187,6 +188,7 @@ URLs work from anywhere that opens links, for example `open -g "keepawake://hold
 | Battery level | IOKit `IOPSCopyPowerSourcesInfo` + power-source change notifications (no polling) |
 | Settings | `UserDefaults` |
 | Launch at login | `SMAppService.mainApp` |
+| Lock Screen | `SACLockScreenImmediate` from the private `login.framework` (what the Apple menu's Lock Screen calls), loaded with `dlopen`; lock state from the `com.apple.screenIsLocked` / `com.apple.screenIsUnlocked` distributed notifications |
 | Lid closed | `sudo -n pmset -a disablesleep 1` / `0`, allowed by `/etc/sudoers.d/keepawake` (installed via `osascript … with administrator privileges`, checked with `visudo`) |
 | Agent control | `keepawake://` URLs handled by `NSApplicationDelegate.application(_:open:)`; the app writes its state to `~/Library/Application Support/keepAwake/status.json`, which the CLI, hooks and MCP server read back |
 | MCP server | The same binary run as `KeepAwake mcp`: JSON-RPC over stdio, no dependencies |
@@ -240,6 +242,8 @@ sudo rm -f /etc/sudoers.d/keepawake
 
 1. Bump `MARKETING_VERSION` (and `CURRENT_PROJECT_VERSION`) in `project.yml`.
 2. Add a `## <version> — <date>` section to [CHANGELOG.md](CHANGELOG.md) and update *What's new* in `docs/index.html`. The release notes start with that changelog section; the script stops if it is missing.
+
+The full checklist, including the Xcode project and screenshots, is in the `release` skill: [.claude/skills/release/SKILL.md](.claude/skills/release/SKILL.md).
 3. Commit and push.
 4. Run the release script:
 
@@ -272,7 +276,7 @@ swift scripts/generate-icon.swift
 
 The project is prepared for the Mac App Store: App Sandbox, privacy manifest, icon, and an Xcode project (`keepAwake.xcodeproj`, generated from `project.yml` with [XcodeGen](https://github.com/yonaskolb/XcodeGen)). See [APPSTORE.md](APPSTORE.md) for the submission steps and listing metadata, and [PRIVACY.md](PRIVACY.md) for the privacy policy.
 
-Builds from `build.sh` (and the release zip) are signed without the App Sandbox, because the lid-closed mode needs `sudo` and `osascript`. In the sandboxed store build that toggle is hidden.
+Builds from `build.sh` (and the release zip) are signed without the App Sandbox, because the lid-closed mode needs `sudo` and `osascript`. In the sandboxed store build that toggle is hidden, and so is Lock Screen, which uses a private API.
 
 ## License
 

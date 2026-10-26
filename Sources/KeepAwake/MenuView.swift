@@ -82,11 +82,22 @@ struct MenuView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(activeText)
                 .font(.callout)
-            Button {
-                controller.turnOff()
-            } label: {
-                Label("Turn Off", systemImage: "stop.fill")
-                    .frame(maxWidth: .infinity)
+            HStack(spacing: 8) {
+                Button {
+                    controller.turnOff()
+                } label: {
+                    Label("Turn Off", systemImage: "stop.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                if controller.screenLockAvailable {
+                    Button {
+                        controller.lockScreen()
+                    } label: {
+                        Label("Lock Screen", systemImage: "lock.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .help("Lock the screen. Your Mac and its agents keep running.")
+                }
             }
             .controlSize(.large)
         }

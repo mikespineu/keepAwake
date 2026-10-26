@@ -2,6 +2,16 @@
 
 All notable changes to keepAwake. Download any version from [GitHub Releases](https://github.com/mikespineu/keepAwake/releases).
 
+## 1.2.1 — 2026-10-26
+
+### Added
+
+- **Lock Screen** button next to Turn Off. It locks the screen like Ctrl-Cmd-Q while keepAwake and your agents keep running behind the lock screen. Not in the Mac App Store build.
+
+### Changed
+
+- With *Keep display on*, the display may now sleep while the screen is locked, however it was locked. The Mac itself stays awake, and the display setting comes back when you unlock.
+
 ## 1.2.0 — 2026-10-25
 
 ### Added
