@@ -1,0 +1,25 @@
+{
+  "name": "keepawake-linkedin-video",
+  "private": true,
+  "version": "1.0.0",
+  "description": "LinkedIn ad video for keepAwake, built with Remotion",
+  "scripts": {
+    "dev": "remotion studio",
+    "render": "remotion render KeepAwakeAd out/keepawake-linkedin.mp4",
+    "thumbnail": "remotion still KeepAwakeAd out/thumbnail-linkedin.png --frame=640",
+    "typecheck": "tsc --noEmit",
+    "render:lid": "remotion render KeepAwakeLidClosed out/keepawake-lid-closed.mp4",
+    "thumbnail:lid": "remotion still KeepAwakeLidClosed out/thumbnail-lid-closed.png --frame=260"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.533",
+    "@remotion/transitions": "4.0.533",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.533"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "typescript": "5.9.3"
+  }
+}
